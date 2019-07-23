@@ -342,7 +342,7 @@ window.onload = function(){
 							}
 							else
 							{
-								customAlert('.dialog-modal', 'Alert', 'Can not connect to '+host1+' and host '+host2+'.');
+								customAlert('.dialog-modal', 'Alert', 'Can not connect to <strong>'+host1+'</strong> and host <strong>'+host2+'</strong>.');
 							}
 							$('#setting').click();
 						}
@@ -354,7 +354,7 @@ window.onload = function(){
 							}
 							else
 							{
-								customAlert('.dialog-modal', 'Alert', 'Can not connect to '+host1+'.');
+								customAlert('.dialog-modal', 'Alert', 'Can not connect to <strong>'+host1+'</strong>.');
 							}
 							$('#setting').click();
 						}
@@ -366,7 +366,7 @@ window.onload = function(){
 							}
 							else
 							{
-								customAlert('.dialog-modal', 'Alert', 'Can not connect to '+host2+'.');
+								customAlert('.dialog-modal', 'Alert', 'Can not connect to <strong>'+host2+'</strong>.');
 							}
 							$('#setting').click();
 						}
@@ -375,15 +375,15 @@ window.onload = function(){
 					{
 						if(data.db1.selectdb == false && data.db2.selectdb == false)
 						{
-							customAlert('.dialog-modal', 'Alert', 'Can not use database '+db1+' and '+db2+'.');
+							customAlert('.dialog-modal', 'Alert', 'Can not use database <strong>'+host1+":"+port1+"/"+db1+'</strong> and <strong>'+host2+":"+port2+"/"+db2+'</strong>.');
 						}
 						else if(data.db1.selectdb == false)
 						{
-							customAlert('.dialog-modal', 'Alert', 'Can not use database '+db1+'.');
+							customAlert('.dialog-modal', 'Alert', 'Can not use database <strong>'+host1+":"+port1+"/"+db1+'</strong>.');
 						}
 						else if(data.db2.selectdb == false)
 						{
-							customAlert('.dialog-modal', 'Alert', 'Can not use database '+db2+'.');
+							customAlert('.dialog-modal', 'Alert', 'Can not use database <strong>'+host2+":"+port2+"/"+db2+'</strong>.');
 						}
 						$('#setting').click();
 					}
@@ -469,14 +469,27 @@ window.onload = function(){
 							ndiff1++;
 							ndiff2 = ndiff1;
 						}
-						var message1 = "Missing "+nmiss1+" table in "+db1;
-						var message2 = "Missing "+nmiss2+" table in "+db2;
-						var message3 = ""+ndiff1+" diferent table between "+db1+" and "+db2;
+						var message1 = "Missing "+nmiss1+" table in <strong>"+host1+":"+port1+"/"+db1+"</strong>";
+						var message2 = "Missing "+nmiss2+" table in <strong>"+host2+":"+port2+"/"+db2+"</strong>";
+						var message3 = ""+ndiff1+" diferent table between <strong>"+host1+":"+port1+"/"+db1+"</strong> and <strong>"+host2+":"+port2+"/"+db2+"</strong>";
 						if(nmiss1 > 0 || nmiss2 > 0 || ndiff1 > 0)
 						{
+							var message = [];
+							if(nmiss1 > 0)
+							{
+								message.push(message1);
+							}
+							if(nmiss2 > 0)
+							{
+								message.push(message2);
+							}
+							if(ndiff1 > 0)
+							{
+								message.push(message3);
+							}
 							showModal('.dialog-modal', {
-								content:message1+'<br >'+message2+'<br >'+message3,
-								title:'Alert Title',
+								content:message.join('<br >'),
+								title:'Table Difference',
 								width:360,
 								buttons:{
 									"Close":function(){
@@ -559,30 +572,30 @@ window.onload = function(){
 				{
 					if(data.tb1.connect == false && data.tb2.connect == false)
 					{
-						customAlert('.dialog-modal', 'Alert', 'Can not connect to '+host1+':'+port1+' and host '+host2+':'+port2+'.');
+						customAlert('.dialog-modal', 'Alert', 'Can not connect to '+host1+':'+port1+' and host <strong>'+host2+':'+port2+'</strong>.');
 					}
 					else if(data.tb1.connect == false)
 					{
-						customAlert('.dialog-modal', 'Alert', 'Can not connect to '+host1+':'+port1+'.');
+						customAlert('.dialog-modal', 'Alert', 'Can not connect to <strong>'+host1+':'+port1+'</strong>.');
 					}
 					else if(data.tb2.connect == false)
 					{
-						customAlert('.dialog-modal', 'Alert', 'Can not connect to '+host2+':'+port2+'.');
+						customAlert('.dialog-modal', 'Alert', 'Can not connect to <strong>'+host2+':'+port2+'</strong>.');
 					}
 				}
 				else if(data.tb1.selectdb == false || data.tb2.selectdb == false)
 				{
 					if(data.tb1.selectdb == false && data.tb2.selectdb == false)
 					{
-						customAlert('.dialog-modal', 'Alert', 'Can not use database '+db1+' and '+db2+'.');
+						customAlert('.dialog-modal', 'Alert', 'Can not use database <strong>'+host1+":"+port1+"/"+db1+'</strong> and <strong>'+host2+":"+port2+"/"+db2+'</strong>.');
 					}
 					else if(data.tb1.selectdb == false)
 					{
-						customAlert('.dialog-modal', 'Alert', 'Can not use database '+db1+'.');
+						customAlert('.dialog-modal', 'Alert', 'Can not use database <strong>'+host1+":"+port1+"/"+db1+'</strong>.');
 					}
 					else if(data.tb2.selectdb == false)
 					{
-						customAlert('.dialog-modal', 'Alert', 'Can not use database '+db2+'.');
+						customAlert('.dialog-modal', 'Alert', 'Can not use database <strong>'+host2+":"+port2+"/"+db2+'</strong>.');
 					}
 				}
 				else
