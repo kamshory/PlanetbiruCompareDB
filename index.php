@@ -478,10 +478,14 @@ window.onload = function(){
 							if(nmiss1 > 0)
 							{
 								message.push(message1);
+								var table = $('.table2-container table tr.missing-table2').attr('data-table');
+								showField(table);
 							}
 							if(nmiss2 > 0)
 							{
 								message.push(message2);
+								var table = $('.table1-container table tr.missing-table1').attr('data-table');
+								showField(table);
 							}
 							if(ndiff1 > 0)
 							{
@@ -518,196 +522,200 @@ window.onload = function(){
 		return false;	
 	});
 	$(document).on('click', '.table-container table tbody tr td a', function(){
-		var host1 = $('#host1').val();
-		var port1 = $('#port1').val();
-		var db1 = $('#db1').val();
-		var user1 = $('#user1').val();
-		var pass1 = $('#pass1').val();
-		var host2 = $('#host2').val();
-		var port2 = $('#port2').val();
-		var db2 = $('#db2').val();
-		var user2 = $('#user2').val();
-		var pass2 = $('#pass2').val();
-		if(db1 == '' || db2 == '')
-		{
-			customAlert('.dialog-modal', 'Alert', 'Please complete setting.');
-			$('.setting-form').fadeIn(200, 'swing', function(){
-				if(db1 == '')
-				{
-					$('#db1').select();
-				}
-				else if(db1 == '')
-				{
-					$('#db1').select();
-				}
-			});
-		}
-		else if(host1 == host2 && port1 == port2 && db1 == db2)
-		{
-			customAlert('.dialog-modal', 'Alert', 'The database to be compared must be diferent.');
-			$('.setting-form').fadeIn(200);
-		}
-		else
-		{
-			var tb = $(this).attr('data-table');
-			$.ajax({
-			'type':'POST',
-			'url':'ajax-show-field.php',
-			'dataType':'json',
-			'data':{
-				'host1':host1,
-				'port1':port1,
-				'db1':db1,
-				'user1':user1,
-				'pass1':pass1,
-				'host2':host2,
-				'port2':port2,
-				'db2':db2,
-				'user2':user2,
-				'pass2':pass2,
-				'tb':tb
-				},
-			'success':function(data){
-				if(data.tb1.connect == false || data.tb2.connect == false)
-				{
-					if(data.tb1.connect == false && data.tb2.connect == false)
-					{
-						customAlert('.dialog-modal', 'Alert', 'Can not connect to '+host1+':'+port1+' and host <strong>'+host2+':'+port2+'</strong>.');
-					}
-					else if(data.tb1.connect == false)
-					{
-						customAlert('.dialog-modal', 'Alert', 'Can not connect to <strong>'+host1+':'+port1+'</strong>.');
-					}
-					else if(data.tb2.connect == false)
-					{
-						customAlert('.dialog-modal', 'Alert', 'Can not connect to <strong>'+host2+':'+port2+'</strong>.');
-					}
-				}
-				else if(data.tb1.selectdb == false || data.tb2.selectdb == false)
-				{
-					if(data.tb1.selectdb == false && data.tb2.selectdb == false)
-					{
-						customAlert('.dialog-modal', 'Alert', 'Can not use database <strong>'+host1+":"+port1+"/"+db1+'</strong> and <strong>'+host2+":"+port2+"/"+db2+'</strong>.');
-					}
-					else if(data.tb1.selectdb == false)
-					{
-						customAlert('.dialog-modal', 'Alert', 'Can not use database <strong>'+host1+":"+port1+"/"+db1+'</strong>.');
-					}
-					else if(data.tb2.selectdb == false)
-					{
-						customAlert('.dialog-modal', 'Alert', 'Can not use database <strong>'+host2+":"+port2+"/"+db2+'</strong>.');
-					}
-				}
-				else
-				{
-					var i, j, k, l, no;
-					// table 1
-					var html1 = '<h3>Table 1: <span class="table-name">'+data.tb1.name+'</span></h3>';
-					html1 += '<table width="100%" border="1" class="table">';
-					html1 += '<thead><tr>';
-					html1 += '<td width="20">No</td>';
-					for(i in data.tb1.colcaption)
-					{
-						html1 += '<td>'+data.tb1.colcaption[i]+'</td>';
-					}
-					html1 += '</tr></thead>';
-					html1 += '<tbody>';
-					no = 1;
-					for(i in data.tb1.coldata)
-					{
-						j = data.tb1.coldata[i];
-						html1 += '<tr data-field="'+i+'">';
-						html1 += '<td align="right">'+(no++)+'</td>';
-						for(k in j)
-						{
-							l = j[k];
-							if(l === null)
-							l = '&nbsp;';
-							html1 += '<td>'+l+'</td>';
-						}
-						html1 += '</tr>';
-					}
-					html1 += '</tbody>';
-					html1 += '</table>';
-					$('.field1-container').html(html1);
-					if(data.tb1.coldata.length == 0)
-					{
-						$('.field1-container').html('Table <strong>'+data.tb1.name+'</strong> is missing.');
-					}
-					
-					// table 2
-					var html2 = '<h3>Table 2: <span class="table-name">'+data.tb2.name+'</span></h3>';
-					html2 += '<table width="100%" border="1" class="table">';
-					html2 += '<thead><tr>';
-					html2 += '<td width="20">No</td>';
-					for(i in data.tb2.colcaption)
-					{
-						html2 += '<td>'+data.tb2.colcaption[i]+'</td>';
-					}
-					html2 += '</tr></thead>';
-					html2 += '<tbody>';
-					no = 1;
-					for(i in data.tb2.coldata)
-					{
-						j = data.tb2.coldata[i];
-						html2 += '<tr data-field="'+i+'">';
-						html2 += '<td align="right">'+(no++)+'</td>';
-						for(k in j)
-						{
-							l = j[k];
-							if(l === null)
-							l = '&nbsp;';
-							html2 += '<td>'+l+'</td>';
-						}
-						html2 += '</tr>';
-					}
-					html2 += '</tbody>';
-					html2 += '</table>';
-					$('.field2-container').html(html2);
-					if(data.tb2.coldata.length == 0)
-					{
-						$('.field2-container').html('Table '+data.tb2.name+' is missing.');
-					}
-								
-					// marking dif field
-					var far1 ={}, fa1 = [];
-					for(i in data.tb1.coldata)
-					{
-						var f = $.map(data.tb1.coldata[i], function(el) { return el; });
-						far1[i] = f.join('|');
-						fa1.push(f.join('|'));
-					}
-					
-					var far2 = {}, fa2 = [];
-					for(i in data.tb2.coldata)
-					{
-						var f = $.map(data.tb2.coldata[i], function(el) { return el; });
-						far2[i] = f.join('|');
-						fa2.push(f.join('|'));
-					}
-					for(i in fa1)
-					{
-						if($.inArray(fa1[i], fa2) == -1)
-						{
-							j = fa1[i].split('|')[0];
-							$('.field-container table tr[data-field="'+j+'"]').addClass('dif-field');
-						}
-					}
-					for(i in fa2)
-					{
-						if($.inArray(fa2[i], fa1) == -1)
-						{
-							j = fa2[i].split('|')[0];
-							$('.field-container table tr[data-field="'+j+'"]').addClass('dif-field');
-						}
-					}
-					}
-				}
-			});
-		}
+		var tb = $(this).attr('data-table');
+		showField(tb);
 		return false;	
 	});
 };
+function showField(tb)
+{
+	var host1 = $('#host1').val();
+	var port1 = $('#port1').val();
+	var db1 = $('#db1').val();
+	var user1 = $('#user1').val();
+	var pass1 = $('#pass1').val();
+	var host2 = $('#host2').val();
+	var port2 = $('#port2').val();
+	var db2 = $('#db2').val();
+	var user2 = $('#user2').val();
+	var pass2 = $('#pass2').val();
+	if(db1 == '' || db2 == '')
+	{
+		customAlert('.dialog-modal', 'Alert', 'Please complete setting.');
+		$('.setting-form').fadeIn(200, 'swing', function(){
+			if(db1 == '')
+			{
+				$('#db1').select();
+			}
+			else if(db1 == '')
+			{
+				$('#db1').select();
+			}
+		});
+	}
+	else if(host1 == host2 && port1 == port2 && db1 == db2)
+	{
+		customAlert('.dialog-modal', 'Alert', 'The database to be compared must be diferent.');
+		$('.setting-form').fadeIn(200);
+	}
+	else
+	{
+		$.ajax({
+		'type':'POST',
+		'url':'ajax-show-field.php',
+		'dataType':'json',
+		'data':{
+			'host1':host1,
+			'port1':port1,
+			'db1':db1,
+			'user1':user1,
+			'pass1':pass1,
+			'host2':host2,
+			'port2':port2,
+			'db2':db2,
+			'user2':user2,
+			'pass2':pass2,
+			'tb':tb
+			},
+		'success':function(data){
+			if(data.tb1.connect == false || data.tb2.connect == false)
+			{
+				if(data.tb1.connect == false && data.tb2.connect == false)
+				{
+					customAlert('.dialog-modal', 'Alert', 'Can not connect to '+host1+':'+port1+' and host <strong>'+host2+':'+port2+'</strong>.');
+				}
+				else if(data.tb1.connect == false)
+				{
+					customAlert('.dialog-modal', 'Alert', 'Can not connect to <strong>'+host1+':'+port1+'</strong>.');
+				}
+				else if(data.tb2.connect == false)
+				{
+					customAlert('.dialog-modal', 'Alert', 'Can not connect to <strong>'+host2+':'+port2+'</strong>.');
+				}
+			}
+			else if(data.tb1.selectdb == false || data.tb2.selectdb == false)
+			{
+				if(data.tb1.selectdb == false && data.tb2.selectdb == false)
+				{
+					customAlert('.dialog-modal', 'Alert', 'Can not use database <strong>'+host1+":"+port1+"/"+db1+'</strong> and <strong>'+host2+":"+port2+"/"+db2+'</strong>.');
+				}
+				else if(data.tb1.selectdb == false)
+				{
+					customAlert('.dialog-modal', 'Alert', 'Can not use database <strong>'+host1+":"+port1+"/"+db1+'</strong>.');
+				}
+				else if(data.tb2.selectdb == false)
+				{
+					customAlert('.dialog-modal', 'Alert', 'Can not use database <strong>'+host2+":"+port2+"/"+db2+'</strong>.');
+				}
+			}
+			else
+			{
+				var i, j, k, l, no;
+				// table 1
+				var html1 = '<h3>Table 1: <span class="table-name">'+data.tb1.name+'</span></h3>';
+				html1 += '<table width="100%" border="1" class="table">';
+				html1 += '<thead><tr>';
+				html1 += '<td width="20">No</td>';
+				for(i in data.tb1.colcaption)
+				{
+					html1 += '<td>'+data.tb1.colcaption[i]+'</td>';
+				}
+				html1 += '</tr></thead>';
+				html1 += '<tbody>';
+				no = 1;
+				for(i in data.tb1.coldata)
+				{
+					j = data.tb1.coldata[i];
+					html1 += '<tr data-field="'+i+'">';
+					html1 += '<td align="right">'+(no++)+'</td>';
+					for(k in j)
+					{
+						l = j[k];
+						if(l === null)
+						l = '&nbsp;';
+						html1 += '<td>'+l+'</td>';
+					}
+					html1 += '</tr>';
+				}
+				html1 += '</tbody>';
+				html1 += '</table>';
+				$('.field1-container').html(html1);
+				if(data.tb1.coldata.length == 0)
+				{
+					$('.field1-container').html('Table <strong>'+data.tb1.name+'</strong> is missing.');
+				}
+				
+				// table 2
+				var html2 = '<h3>Table 2: <span class="table-name">'+data.tb2.name+'</span></h3>';
+				html2 += '<table width="100%" border="1" class="table">';
+				html2 += '<thead><tr>';
+				html2 += '<td width="20">No</td>';
+				for(i in data.tb2.colcaption)
+				{
+					html2 += '<td>'+data.tb2.colcaption[i]+'</td>';
+				}
+				html2 += '</tr></thead>';
+				html2 += '<tbody>';
+				no = 1;
+				for(i in data.tb2.coldata)
+				{
+					j = data.tb2.coldata[i];
+					html2 += '<tr data-field="'+i+'">';
+					html2 += '<td align="right">'+(no++)+'</td>';
+					for(k in j)
+					{
+						l = j[k];
+						if(l === null)
+						l = '&nbsp;';
+						html2 += '<td>'+l+'</td>';
+					}
+					html2 += '</tr>';
+				}
+				html2 += '</tbody>';
+				html2 += '</table>';
+				$('.field2-container').html(html2);
+				if(data.tb2.coldata.length == 0)
+				{
+					$('.field2-container').html('Table '+data.tb2.name+' is missing.');
+				}
+							
+				// marking dif field
+				var far1 ={}, fa1 = [];
+				for(i in data.tb1.coldata)
+				{
+					var f = $.map(data.tb1.coldata[i], function(el) { return el; });
+					far1[i] = f.join('|');
+					fa1.push(f.join('|'));
+				}
+				
+				var far2 = {}, fa2 = [];
+				for(i in data.tb2.coldata)
+				{
+					var f = $.map(data.tb2.coldata[i], function(el) { return el; });
+					far2[i] = f.join('|');
+					fa2.push(f.join('|'));
+				}
+				for(i in fa1)
+				{
+					if($.inArray(fa1[i], fa2) == -1)
+					{
+						j = fa1[i].split('|')[0];
+						$('.field-container table tr[data-field="'+j+'"]').addClass('dif-field');
+					}
+				}
+				for(i in fa2)
+				{
+					if($.inArray(fa2[i], fa1) == -1)
+					{
+						j = fa2[i].split('|')[0];
+						$('.field-container table tr[data-field="'+j+'"]').addClass('dif-field');
+					}
+				}
+				}
+			}
+		});
+	}
+}
 function customAlert(selector, title, content)
 {
 	showModal(selector, {
@@ -751,8 +759,6 @@ function showModal(selector, options)
 	var dh = $(selector).height();
 	var dl = (ww - dw) / 2;
 	var dt = (wh - dh) / 2;
-	console.log(ww);
-	console.log(wh);
 	$(selector).css({
 		left:dl+'px',
 		top:dt+'px',
