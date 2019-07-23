@@ -42,7 +42,7 @@ input, select, button, textarea{
 	background-color:#FDFDFD;
 	border:1px solid #F5F5F5;
 	padding:10px;
-	width:520px;
+	width:620px;
 	position:absolute;
 	display:none;
 }
@@ -53,12 +53,13 @@ input, select, button, textarea{
 .setting-form table td:nth-child(2),
 .setting-form table td:nth-child(3),
 .setting-form table td:nth-child(4),
-.setting-form table td:nth-child(5)
+.setting-form table td:nth-child(5),
+.setting-form table td:nth-child(6)
 {
 	width:100px;
 	padding-left:4px;
 }
-.setting-form input[type="text"], .setting-form input[type="password"]{
+.setting-form input[type="text"], .setting-form input[type="password"], .setting-form input[type="number"]{
 	border:1px solid #EEEEEE;
 	background-color:#FFFFFF;
 	color:#555555;
@@ -69,6 +70,9 @@ input, select, button, textarea{
 	font-size:12px;
 	color:#555555;
 	transition:color 0.5s, box-shadow 0.5s, border-color 0.5s;
+}
+.setting-form input[type="number"]{
+	width:70px;
 }
 .setting-form input[type="text"]:focus, .setting-form input[type="password"]:focus{
 	border: 1px solid #A6D3E3;
@@ -159,6 +163,56 @@ input, select, button, textarea{
 .table-name{
 	font-weight:normal;
 }
+.swap-icon
+{
+	width:24px;
+	height:24px;
+	display:inline-block;
+	text-align:center;
+}
+.swap-icon::before
+{
+	content:"↑";
+}
+.swap-icon::after
+{
+	content:"↓";
+}
+.swap-control{
+	display:inline-block;
+}
+
+.dialog-modal {
+	display:none;
+    position: absolute;
+    border: 1px solid #CCC;
+    box-sizing: border-box;
+	background-color:#FFFFFF;
+}
+.dialog-modal-body{
+	padding:20px;
+}
+.dialog-modal-footer{
+	border-top:1px solid #CCCCCC;
+	padding:10px 20px;
+	text-align:right;
+}
+.dialog-modal-header h3{
+	border-bottom:1px solid #CCCCCC;
+    background: #EEE;
+	margin:0;
+	padding:10px 20px;
+}
+.dialog-modal-footer input[type="submit"], .dialog-modal-footer input[type="button"], .dialog-modal-footer input[type="reset"], .dialog-modal-footer button {
+    border: 1px solid #DDDDDD;
+    background: #EEEEEE;
+    font-family: Tahoma, Geneva, sans-serif;
+    font-size: 12px;
+    color: #555555;
+    padding: 8px 12px;
+    overflow: hidden;
+	min-width:80px;
+}
 </style>
 <script type="text/javascript">
 /*
@@ -167,6 +221,20 @@ All rights reserved
 http://www.planetbiru.net
 */
 var to = setTimeout(function(){}, 1);
+function putSetting(source, destination)
+{
+	var db2 = window.localStorage.getItem(source) || '';
+	var data = JSON.parse(db2);
+	var key;
+	var parent = $('.database-setting[data-db="'+destination+'"]');
+	for(key in data)
+	{
+		if(parent.find("."+key).length)
+		{
+			parent.find("."+key).val(data[key]);
+		}
+	}
+}
 window.onload = function(){
 	$(document).on('click', '#setting', function(){
 		$('.setting-form').fadeIn(200);
@@ -184,42 +252,46 @@ window.onload = function(){
 		clearTimeout(to);
 		}, 50);
 	});
-	$(document).on('change', '#db1', function(){
-		var db1 = $(this).val();
-		if(window.localStorage)
-		{
-			window.localStorage.setItem('db1', db1);
-		}
+	
+	$(document).on('change', '.database-setting input', function(e){
+		var dbrow = $(this).closest('tr');
+		var dbnam = dbrow.attr('data-db');
+		var dbinp = dbrow.find('input');
+		var data = [];
+		dbinp.each(function(index, element) {
+            var inpname = $(this).attr('class');
+            var inpvalue = $(this).val();
+			dbrow[inpname] = inpvalue;
+        });
+		window.localStorage.setItem('db'+dbnam, JSON.stringify(dbrow));
 	});
+
 	if(window.localStorage){
-		var db1 = window.localStorage.getItem('db1') || '';
-		$('#db1').val(db1);
+		putSetting('dbdb1', 'db1');
+		putSetting('dbdb2', 'db2');
 	}
-	if(window.localStorage){
-		var db2 = window.localStorage.getItem('db2') || '';
-		$('#db2').val(db2);
-	}
-	$(document).on('change', '#db2', function(){
-		var db2 = $(this).val();
-		if(window.localStorage)
-		{
-			window.localStorage.setItem('db2', db2);
-		}
+	$(document).on('click', '.swap-control', function(e){
+		putSetting('dbdb2', 'db1');
+		putSetting('dbdb1', 'db2');
+		$('.database-setting input').change();
+		e.preventDefault();
 	});
 	$(document).on('click', '#list-tables', function(){
 		var host1 = $('#host1').val();
+		var port1 = $('#port1').val();
 		var db1 = $('#db1').val();
 		var user1 = $('#user1').val();
 		var pass1 = $('#pass1').val();
 		
 		var host2 = $('#host2').val();
+		var port2 = $('#port2').val();
 		var db2 = $('#db2').val();
 		var user2 = $('#user2').val();
 		var pass2 = $('#pass2').val();
 		
 		if(db1 == '' || db2 == '')
 		{
-			alert('Please complete setting.');
+			customAlert('.dialog-modal', 'Alert', 'Please complete setting.');
 			$('.setting-form').fadeIn(200, 'swing', function(){
 				if(db1 == '')
 				{
@@ -231,164 +303,201 @@ window.onload = function(){
 				}
 			});
 		}
-		else if(host1 == host2 && db1 == db2)
+		else if(host1 == host2 && port1 == port2 && db1 == db2)
 		{
-			alert('Database to be compared must diferent.');
+			customAlert('.dialog-modal', 'Alert', 'The database to be compared must be diferent.');
 			$('.setting-form').fadeIn(200);
 		}
 		else
 		{
 			$('.setting-form').fadeOut(200);
-			$('#text_db1_name').text('('+db1+')');
-			$('#text_db2_name').text('('+db2+')');
+			$('#text_db1_name').text('('+host1+":"+port1+"/"+db1+')');
+			$('#text_db2_name').text('('+host2+":"+port2+"/"+db2+')');
 			$.ajax({
-			'type':'POST',
-			'url':'ajax-show-table.php',
-			'dataType':'json',
-			'data':{
-				'host1':host1,
-				'db1':db1,
-				'user1':user1,
-				'pass1':pass1,
-				'host2':host2,
-				'db2':db2,
-				'user2':user2,
-				'pass2':pass2
-				},
-			'success':function(data){
-				if(data.db1.connect == false || data.db2.connect == false)
-				{
-					if(data.db1.connect == false && data.db2.connect == false)
+				'type':'POST',
+				'url':'ajax-show-table.php',
+				'dataType':'json',
+				'data':{
+					'host1':host1,
+					'db1':db1,
+					'user1':user1,
+					'pass1':pass1,
+					'host2':host2,
+					'db2':db2,
+					'user2':user2,
+					'pass2':pass2
+					},
+				'success':function(data){
+					var nmiss1 = 0;
+					var ndiff1 = 0;
+					var nmiss2 = 0;
+					var ndiff2 = 0;
+					if(data.db1.connect == false || data.db2.connect == false)
 					{
-						if(host1 == '' || host2 == '')
+						if(data.db1.connect == false && data.db2.connect == false)
 						{
-							alert('Can not connect to HOST');
+							if(host1 == '' || host2 == '')
+							{
+								customAlert('.dialog-modal', 'Alert', 'Can not connect to HOST');
+							}
+							else
+							{
+								customAlert('.dialog-modal', 'Alert', 'Can not connect to '+host1+' and host '+host2+'.');
+							}
+							$('#setting').click();
 						}
-						else
+						else if(data.db1.connect == false)
 						{
-							alert('Can not connect to '+host1+' and host '+host2+'.');
+							if(host1 == '')
+							{
+								customAlert('.dialog-modal', 'Alert', 'Can not connect to HOST');
+							}
+							else
+							{
+								customAlert('.dialog-modal', 'Alert', 'Can not connect to '+host1+'.');
+							}
+							$('#setting').click();
+						}
+						else if(data.db2.connect == false)
+						{
+							if(host2 == '')
+							{
+								customAlert('.dialog-modal', 'Alert', 'Can not connect to HOST');
+							}
+							else
+							{
+								customAlert('.dialog-modal', 'Alert', 'Can not connect to '+host2+'.');
+							}
+							$('#setting').click();
+						}
+					}
+					else if(data.db1.selectdb == false || data.db2.selectdb == false)
+					{
+						if(data.db1.selectdb == false && data.db2.selectdb == false)
+						{
+							customAlert('.dialog-modal', 'Alert', 'Can not use database '+db1+' and '+db2+'.');
+						}
+						else if(data.db1.selectdb == false)
+						{
+							customAlert('.dialog-modal', 'Alert', 'Can not use database '+db1+'.');
+						}
+						else if(data.db2.selectdb == false)
+						{
+							customAlert('.dialog-modal', 'Alert', 'Can not use database '+db2+'.');
 						}
 						$('#setting').click();
 					}
-					else if(data.db1.connect == false)
+					else
 					{
-						if(host1 == '')
+						var i, j, k, no;
+						var html1 = '', html2 = '';
+						var tables1 = [];
+						var tables2 = [];
+						$('.table1-container').html('<table width="100%" border="1" class="table">\r\n'+
+						'<thead>\r\n'+
+						'<tr><td width="20">No</td><td>Name</td><td>Engine</td><td>Version</td><td>Row Format</td><td>Collation </td>\r\n'+
+						'</tr>\r\n'+
+						'</thead>\r\n'+
+						'<tbody>\r\n'+
+						'</tbody>\r\n'+
+						'</table>\r\n');
+						no = 1;
+						for(i in data.db1.data)
 						{
-							alert('Can not connect to HOST');
+							j = data.db1.data[i];
+							$('.table1-container table tbody').append('<tr data-table="'+j.Name+'">\r\n'+
+							'<td align="right"><a href="#" data-table="'+j.Name+'">'+no+'</a></td>\r\n'+
+							'<td><a href="#" data-table="'+j.Name+'">'+j.Name+'</a></td>\r\n'+
+							'<td><a href="#" data-table="'+j.Name+'">'+j.Engine+'</a></td>\r\n'+
+							'<td><a href="#" data-table="'+j.Name+'">'+j.Version+'</a></td>\r\n'+
+							'<td><a href="#" data-table="'+j.Name+'">'+j.Row_format+'</a></td>\r\n'+
+							'<td><a href="#" data-table="'+j.Name+'">'+j.Collation+'</a></td>\r\n'+
+							'</tr>\r\n');
+							no++
+							tables1.push(j.Name);						
 						}
-						else
+						no = 1;
+						$('.table2-container').html('<table width="100%" border="1" class="table">\r\n'+
+						'<thead>\r\n'+
+						'<tr><td width="20">No</td><td>Name</td><td>Engine</td><td>Version</td><td>Row Format</td><td>Collation </td>\r\n'+
+						'</tr>\r\n'+
+						'</thead>\r\n'+
+						'<tbody>\r\n'+
+						'</tbody>\r\n'+
+						'</table>\r\n');
+						for(i in data.db2.data)
 						{
-							alert('Can not connect to '+host1+'.');
+							j = data.db2.data[i];
+							$('.table2-container table tbody').append('<tr data-table="'+j.Name+'">\r\n'+
+							'<td align="right"><a href="#" data-table="'+j.Name+'">'+no+'</a></td>\r\n'+
+							'<td><a href="#" data-table="'+j.Name+'">'+j.Name+'</a></td>\r\n'+
+							'<td><a href="#" data-table="'+j.Name+'">'+j.Engine+'</a></td>\r\n'+
+							'<td><a href="#" data-table="'+j.Name+'">'+j.Version+'</a></td>\r\n'+
+							'<td><a href="#" data-table="'+j.Name+'">'+j.Row_format+'</a></td>\r\n'+
+							'<td><a href="#" data-table="'+j.Name+'">'+j.Collation+'</a></td>\r\n'+
+							'</tr>\r\n');
+							no++
+							tables2.push(j.Name);						
+							
 						}
-						$('#setting').click();
-					}
-					else if(data.db2.connect == false)
-					{
-						if(host2 == '')
-						{
-							alert('Can not connect to HOST');
-						}
-						else
-						{
-							alert('Can not connect to '+host2+'.');
-						}
-						$('#setting').click();
-					}
-				}
-				else if(data.db1.selectdb == false || data.db2.selectdb == false)
-				{
-					if(data.db1.selectdb == false && data.db2.selectdb == false)
-					{
-						alert('Can not use database '+db1+' and '+db2+'.');
-					}
-					else if(data.db1.selectdb == false)
-					{
-						alert('Can not use database '+db1+'.');
-					}
-					else if(data.db2.selectdb == false)
-					{
-						alert('Can not use database '+db2+'.');
-					}
-					$('#setting').click();
-				}
-				else
-				{
-					var i, j, k, no;
-					var html1 = '', html2 = '';
-					var tables1 = [];
-					var tables2 = [];
-					$('.table1-container').html('<table width="100%" border="1" class="table">\r\n'+
-					'<thead>\r\n'+
-					'<tr><td width="20">No</td><td>Name</td><td>Engine</td><td>Version</td><td>Row Format</td><td>Collation </td>\r\n'+
-					'</tr>\r\n'+
-					'</thead>\r\n'+
-					'<tbody>\r\n'+
-					'</tbody>\r\n'+
-					'</table>\r\n');
-					no = 1;
-					for(i in data.db1.data)
-					{
-						j = data.db1.data[i];
-						$('.table1-container table tbody').append('<tr data-table="'+j.Name+'">\r\n'+
-						'<td align="right"><a href="#" data-table="'+j.Name+'">'+no+'</a></td>\r\n'+
-						'<td><a href="#" data-table="'+j.Name+'">'+j.Name+'</a></td>\r\n'+
-						'<td><a href="#" data-table="'+j.Name+'">'+j.Engine+'</a></td>\r\n'+
-						'<td><a href="#" data-table="'+j.Name+'">'+j.Version+'</a></td>\r\n'+
-						'<td><a href="#" data-table="'+j.Name+'">'+j.Row_format+'</a></td>\r\n'+
-						'<td><a href="#" data-table="'+j.Name+'">'+j.Collation+'</a></td>\r\n'+
-						'</tr>\r\n');
-						no++
-						tables1.push(j.Name);						
-					}
-					no = 1;
-					$('.table2-container').html('<table width="100%" border="1" class="table">\r\n'+
-					'<thead>\r\n'+
-					'<tr><td width="20">No</td><td>Name</td><td>Engine</td><td>Version</td><td>Row Format</td><td>Collation </td>\r\n'+
-					'</tr>\r\n'+
-					'</thead>\r\n'+
-					'<tbody>\r\n'+
-					'</tbody>\r\n'+
-					'</table>\r\n');
-					for(i in data.db2.data)
-					{
-						j = data.db2.data[i];
-						$('.table2-container table tbody').append('<tr data-table="'+j.Name+'">\r\n'+
-						'<td align="right"><a href="#" data-table="'+j.Name+'">'+no+'</a></td>\r\n'+
-						'<td><a href="#" data-table="'+j.Name+'">'+j.Name+'</a></td>\r\n'+
-						'<td><a href="#" data-table="'+j.Name+'">'+j.Engine+'</a></td>\r\n'+
-						'<td><a href="#" data-table="'+j.Name+'">'+j.Version+'</a></td>\r\n'+
-						'<td><a href="#" data-table="'+j.Name+'">'+j.Row_format+'</a></td>\r\n'+
-						'<td><a href="#" data-table="'+j.Name+'">'+j.Collation+'</a></td>\r\n'+
-						'</tr>\r\n');
-						no++
-						tables2.push(j.Name);						
 						
-					}
-					
-					// marking missing table
-					for(i in tables1)
-					{
-						j = tables1[i];
-						if($.inArray(j, tables2) == -1)
+						// marking missing table
+						for(i in tables1)
 						{
-							$('.table1-container .table tbody tr[data-table="'+j+'"]').addClass('missing-table1');
+							j = tables1[i];
+							if($.inArray(j, tables2) == -1)
+							{
+								$('.table1-container .table tbody tr[data-table="'+j+'"]').addClass('missing-table1');
+								nmiss2++;
+							}
 						}
-					}
-					for(i in tables2)
-					{
-						j = tables2[i];
-						if($.inArray(j, tables1) == -1)
+						for(i in tables2)
 						{
-							$('.table2-container .table tbody tr[data-table="'+j+'"]').addClass('missing-table2');
+							j = tables2[i];
+							if($.inArray(j, tables1) == -1)
+							{
+								$('.table2-container .table tbody tr[data-table="'+j+'"]').addClass('missing-table2');
+								nmiss1++;
+							}
 						}
-					}
-					
-					// marking diff table
-					for(i in data.diftbl)
-					{
-						var j = data.diftbl[i];
-						$('.table-container .table tbody tr[data-table="'+j+'"] td:nth-child(2)').append(' <span class="asterisk">*</span>');
-					}
+						
+						// marking diff table
+						for(i in data.diftbl)
+						{
+							var j = data.diftbl[i];
+							$('.table-container .table tbody tr[data-table="'+j+'"] td:nth-child(2)').append(' <span class="asterisk">*</span>');
+							ndiff1++;
+							ndiff2 = ndiff1;
+						}
+						var message1 = "Missing "+nmiss1+" table in "+db1;
+						var message2 = "Missing "+nmiss2+" table in "+db2;
+						var message3 = ""+ndiff1+" diferent table between "+db1+" and "+db2;
+						if(nmiss1 > 0 || nmiss2 > 0 || ndiff1 > 0)
+						{
+							showModal('.dialog-modal', {
+								content:message1+'<br >'+message2+'<br >'+message3,
+								title:'Alert Title',
+								width:360,
+								buttons:{
+									"Close":function(){
+										$('.dialog-modal').fadeOut(200);
+									}
+								}
+							});
+						}
+						else
+						{
+							showModal('.dialog-modal', {
+								content:'The database structure are identical.',
+								title:'Congratulation',
+								width:360,
+								buttons:{
+									"Close":function(){
+										$('.dialog-modal').fadeOut(200);
+									}
+								}
+							});
+						}
 					}
 				}
 			});
@@ -397,16 +506,18 @@ window.onload = function(){
 	});
 	$(document).on('click', '.table-container table tbody tr td a', function(){
 		var host1 = $('#host1').val();
+		var port1 = $('#port1').val();
 		var db1 = $('#db1').val();
 		var user1 = $('#user1').val();
 		var pass1 = $('#pass1').val();
 		var host2 = $('#host2').val();
+		var port2 = $('#port2').val();
 		var db2 = $('#db2').val();
 		var user2 = $('#user2').val();
 		var pass2 = $('#pass2').val();
 		if(db1 == '' || db2 == '')
 		{
-			alert('Please complete setting.');
+			customAlert('.dialog-modal', 'Alert', 'Please complete setting.');
 			$('.setting-form').fadeIn(200, 'swing', function(){
 				if(db1 == '')
 				{
@@ -418,9 +529,9 @@ window.onload = function(){
 				}
 			});
 		}
-		else if(host1 == host2 && db1 == db2)
+		else if(host1 == host2 && port1 == port2 && db1 == db2)
 		{
-			alert('Database to be compared must diferent.');
+			customAlert('.dialog-modal', 'Alert', 'The database to be compared must be diferent.');
 			$('.setting-form').fadeIn(200);
 		}
 		else
@@ -432,10 +543,12 @@ window.onload = function(){
 			'dataType':'json',
 			'data':{
 				'host1':host1,
+				'port1':port1,
 				'db1':db1,
 				'user1':user1,
 				'pass1':pass1,
 				'host2':host2,
+				'port2':port2,
 				'db2':db2,
 				'user2':user2,
 				'pass2':pass2,
@@ -446,30 +559,30 @@ window.onload = function(){
 				{
 					if(data.tb1.connect == false && data.tb2.connect == false)
 					{
-						alert('Can not connect to '+host1+' and host '+host2+'.');
+						customAlert('.dialog-modal', 'Alert', 'Can not connect to '+host1+':'+port1+' and host '+host2+':'+port2+'.');
 					}
 					else if(data.tb1.connect == false)
 					{
-						alert('Can not connect to '+host1+'.');
+						customAlert('.dialog-modal', 'Alert', 'Can not connect to '+host1+':'+port1+'.');
 					}
 					else if(data.tb2.connect == false)
 					{
-						alert('Can not connect to '+host2+'.');
+						customAlert('.dialog-modal', 'Alert', 'Can not connect to '+host2+':'+port2+'.');
 					}
 				}
 				else if(data.tb1.selectdb == false || data.tb2.selectdb == false)
 				{
 					if(data.tb1.selectdb == false && data.tb2.selectdb == false)
 					{
-						alert('Can not use database '+db1+' and '+db2+'.');
+						customAlert('.dialog-modal', 'Alert', 'Can not use database '+db1+' and '+db2+'.');
 					}
 					else if(data.tb1.selectdb == false)
 					{
-						alert('Can not use database '+db1+'.');
+						customAlert('.dialog-modal', 'Alert', 'Can not use database '+db1+'.');
 					}
 					else if(data.tb2.selectdb == false)
 					{
-						alert('Can not use database '+db2+'.');
+						customAlert('.dialog-modal', 'Alert', 'Can not use database '+db2+'.');
 					}
 				}
 				else
@@ -582,6 +695,57 @@ window.onload = function(){
 		return false;	
 	});
 };
+function customAlert(selector, title, content)
+{
+	showModal(selector, {
+		title:title, 
+		content:content, 
+		buttons:{
+			'Close':function(){
+				$('.dialog-modal').fadeOut(200);
+			}
+		}
+	});
+}
+function showModal(selector, options)
+{
+	$(selector).empty().append('<div class="dialog-modal-header"><h3></h3></div><div class="dialog-modal-body"></div><div class="dialog-modal-footer"></div>');
+	options = options || {};
+	var content = options.content || '';
+	var title = options.title || '';
+	var buttons = options.buttons || {};
+	var i, caption;
+	if(typeof buttons == 'object')
+	{
+		for(i in buttons)
+		{
+			caption = i;
+			var btn = document.createElement('button');
+			btn.innerText = caption;
+			btn.addEventListener('click', buttons[i]);
+			$(selector).find('.dialog-modal-footer')[0].appendChild(btn);
+		}
+	}
+	
+	$(selector).find('.dialog-modal-body').html(content);
+	$(selector).find('.dialog-modal-header h3').text(title);
+	var dw = options.width || 400;
+	$(selector).css({
+		width:dw
+	})
+	var ww = $(window).width();
+	var wh = $(window).height();
+	var dh = $(selector).height();
+	var dl = (ww - dw) / 2;
+	var dt = (wh - dh) / 2;
+	console.log(ww);
+	console.log(wh);
+	$(selector).css({
+		left:dl+'px',
+		top:dt+'px',
+	});
+	$(selector).fadeIn(200);
+}
 </script>
 </head>
 
@@ -596,23 +760,28 @@ window.onload = function(){
           <tr>
             <td>&nbsp;</td>
             <td>Host</td>
+            <td>Port</td>
             <td>Database Name</td>
             <td>Username</td>
             <td>Password</td>
+            <td>&nbsp;</td>
           </tr>
-          <tr>
+          <tr data-db="db1" class="database-setting">
             <td>Database 1</td>
-            <td><input type="text" name="host1" id="host1" /></td>
-            <td><input type="text" name="db1" id="db1" /></td>
-            <td><input type="text" name="user1" id="user1" /></td>
-            <td><input type="password" name="pass1" id="pass1" /></td>
+            <td><input class="input-host" type="text" name="host1" id="host1" /></td>
+            <td><input class="input-port" type="number" name="port1" id="port1" /></td>
+            <td><input class="input-db" type="text" name="db1" id="db1" /></td>
+            <td><input class="input-user" type="text" name="user1" id="user1" /></td>
+            <td><input class="input-pass" type="password" name="pass1" id="pass1" /></td>
+            <td rowspan="2" align="center"><a href="#" class="swap-control"><span class="swap-icon"></span></a></td>
           </tr>
-          <tr>
+          <tr data-db="db2" class="database-setting">
             <td>Database 2</td>
-            <td><input type="text" name="host2" id="host2" /></td>
-            <td><input type="text" name="db2" id="db2" /></td>
-            <td><input type="text" name="user2" id="user2" /></td>
-            <td><input type="password" name="pass2" id="pass2" /></td>
+            <td><input class="input-host" type="text" name="host2" id="host2" /></td>
+            <td><input class="input-port" type="number" name="port2" id="port2" /></td>
+            <td><input class="input-db" type="text" name="db2" id="db2" /></td>
+            <td><input class="input-user" type="text" name="user2" id="user2" /></td>
+            <td><input class="input-pass" type="password" name="pass2" id="pass2" /></td>
           </tr>
         </table>
         </div>
@@ -636,6 +805,15 @@ window.onload = function(){
     <div class="clear"></div>
 </div>    
     
+</div>
+<script type="text/javascript">
+
+</script>
+<style type="text/css">
+
+</style>
+<div class="dialog-modal">
+	
 </div>
 </body>
 </html>

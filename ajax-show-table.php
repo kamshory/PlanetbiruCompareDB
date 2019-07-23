@@ -14,17 +14,19 @@ if(isset($_POST))
 if(isset($_POST['db1']) && isset($_POST['db2']))
 {
 	$host1 = (strlen(@$_POST['host1']))?(trim($_POST['host1'])):'localhost';
+	$port1 = (strlen(@$_POST['port1']))?(trim($_POST['port1'])):3306;
 	$db1 = trim(@$_POST['db1']);
 	$user1 = (strlen(@$_POST['user1']))?(trim($_POST['user1'])):'root';
 	$pass1 = (strlen(@$_POST['pass1']))?(trim($_POST['pass1'])):'';
 	
 	$host2 = (strlen(@$_POST['host2']))?(trim($_POST['host2'])):'localhost';
+	$port2 = (strlen(@$_POST['port2']))?(trim($_POST['port2'])):3306;
 	$db2 = trim(@$_POST['db2']);
 	$user2 = (strlen(@$_POST['user2']))?(trim($_POST['user2'])):'root';
 	$pass2 = (strlen(@$_POST['pass2']))?(trim($_POST['pass2'])):'';
 		
-	$connection1 = @mysql_connect($host1, $user1, $pass1);
-	$connection2 = @mysql_connect($host2, $user2, $pass2);
+	$connection1 = @mysql_connect($host1.":".$port1, $user1, $pass1);
+	$connection2 = @mysql_connect($host2.":".$port2, $user2, $pass2);
 	
 
 	if(!$connection1 || !$connection2)
