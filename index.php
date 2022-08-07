@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>CompareDB version 1.1</title>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>CompareDB version 1.2</title>
 <script type="text/javascript" src="jquery.js"></script>
 <style type="text/css">
 body{
@@ -805,7 +807,7 @@ function showModal(selector, options)
         </table>
         </div>
         
-	  <span class="title">CompareDB version 1.1 - Created by <a href="https://www.planetbiru.com/" target="_blank">Planetbiru Studio</a></span>
+	  <span class="title">CompareDB version 1.2 - Created by <a href="https://www.planetbiru.com/" target="_blank">Planetbiru Studio</a></span>
 	  </form>
     </div>
 
