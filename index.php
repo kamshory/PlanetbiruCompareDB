@@ -218,7 +218,7 @@ input, select, button, textarea{
 /*
 Copyright Planetbiru Studio 2015
 All rights reserved
-http://www.planetbiru.net
+http://www.planetbiru.com
 */
 var to = setTimeout(function(){}, 1);
 function putSetting(source, destination)
@@ -805,7 +805,7 @@ function showModal(selector, options)
         </table>
         </div>
         
-	  <span class="title">CompareDB version 1.1 - Created by <a href="http://www.planetbiru.net" target="_blank">Planetbiru Studio</a></span>
+	  <span class="title">CompareDB version 1.1 - Created by <a href="http://www.planetbiru.com" target="_blank">Planetbiru Studio</a></span>
 	  </form>
     </div>
 
