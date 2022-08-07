@@ -13,45 +13,52 @@ if(isset($_POST))
 if(isset($_POST['db1']) && isset($_POST['db2']) && isset($_POST['tb']))
 {
 	$host1 = (strlen(@$_POST['host1']))?(trim($_POST['host1'])):'localhost';
+	$port1 = (strlen(@$_POST['port1']))?(trim($_POST['port1'])):3306;
 	$db1 = trim(@$_POST['db1']);
 	$user1 = (strlen(@$_POST['user1']))?(trim($_POST['user1'])):'root';
 	$pass1 = (strlen(@$_POST['pass1']))?(trim($_POST['pass1'])):'';
 	
 	$host2 = (strlen(@$_POST['host2']))?(trim($_POST['host2'])):'localhost';
+	$port2 = (strlen(@$_POST['port2']))?(trim($_POST['port2'])):3306;
 	$db2 = trim(@$_POST['db2']);
 	$user2 = (strlen(@$_POST['user2']))?(trim($_POST['user2'])):'root';
 	$pass2 = (strlen(@$_POST['pass2']))?(trim($_POST['pass2'])):'';
 		
-	$connection1 = @mysql_connect($host1, $user1, $pass1);
-	$connection2 = @mysql_connect($host2, $user2, $pass2);
-		
-	$table = trim(@$_POST['tb']);
-	
-	$connection1 = @mysql_connect($host1, $user1, $pass1);
-	$connection2 = @mysql_connect($host2, $user2, $pass2);
-
-	if(!$connection1 || !$connection2)
-	{
-		if(!$connection1) $s1 = false; else $s1 = true;
-		if(!$connection2) $s2 = false; else $s2 = true;
-		$output = array(
-		"tb1"=>array("connect"=>$s1, "selectdb"=>$s1, "name"=>$table, "colcaption"=>null, "coldata"=>null), 
-		"tb2"=>array("connect"=>$s2, "selectdb"=>$s2, "name"=>$table, "colcaption"=>null, "coldata"=>null)
-		);
-		echo json_encode($output);
-		exit();
-	}
+	$table = (strlen(@$_POST['tb']))?(trim($_POST['tb'])):'';
 	
 	// test select db
-	$sdb1 = @mysql_select_db($db1, $connection1);
-	$sdb2 = @mysql_select_db($db2, $connection2);
+	
+	try
+	{
+		
+		$tz = date('P');
+		$database1 = new PDO("mysql:host=".$host1."; port=".$port1."; dbname=".$db1, $user1, $pass1);
+		$database1->exec("SET time_zone='$tz'");
+		$sdb1 = true;
+	}
+	catch(PDOException $e)
+	{
+	}
+
+	try
+	{
+		$tz = date('P');
+		$database2 = new PDO("mysql:host=".$host2."; port=".$port2."; dbname=".$db2, $user2, $pass2);
+		$database2->exec("SET time_zone='$tz'");
+		$sdb2 = true;
+	}
+	catch(PDOException $e)
+	{
+	}
+
 	if(!$sdb1 || !$sdb2)
 	{
 		if(!$sdb1) $s1 = false; else $s1 = true;
 		if(!$sdb2) $s2 = false; else $s2 = true;
 		$output = array(
-		"tb1"=>array("connect"=>true, "selectdb"=>$s1, "name"=>$table, "colcaption"=>null, "coldata"=>null), 
-		"tb2"=>array("connect"=>true, "selectdb"=>$s2, "name"=>$table, "colcaption"=>null, "coldata"=>null)
+		"db1"=>array("connect"=>true, "selectdb"=>$s1, "data"=>null), 
+		"db2"=>array("connect"=>true, "selectdb"=>$s2, "data"=>null), 
+		'diftbl'=>null
 		);
 		echo json_encode($output);
 		exit();
@@ -65,13 +72,14 @@ if(isset($_POST['db1']) && isset($_POST['db2']) && isset($_POST['tb']))
 	
 	$tabledata['db1'] = array();
 	$tabledata['db2'] = array();
-	
-	mysql_select_db($db1, $connection1);
-	$r1 = mysql_query("SHOW COLUMNS FROM $table", $connection1);
-	if($r1)
+
+	$sql1 = "SHOW COLUMNS FROM $table";
+	try
 	{
-		$caption1 = null;
-		while(($dt = mysql_fetch_assoc($r1)))
+		$ldb_rs = $database1->prepare($sql1);	
+		$ldb_rs->execute();		
+		$arr1 = $ldb_rs->fetchAll(PDO::FETCH_ASSOC);
+		foreach($arr1 as $dt)
 		{
 			if(!isset($caption1))
 			{
@@ -79,43 +87,50 @@ if(isset($_POST['db1']) && isset($_POST['db2']) && isset($_POST['tb']))
 			}
 			$tabledata['db1'][$dt['Field']] = $dt;
 		}
-	}
-	else
-	{
 		$caption1 = array('Field', 'Type', 'Null', 'Key', 'Default', 'Extra');
 	}
-	mysql_select_db($db2, $connection2);
-	$r2 = mysql_query("SHOW COLUMNS FROM $table", $connection2);
-	$caption2 = null;
-	if($r2)
+	catch(Exception $e)
 	{
-	while(($dt = mysql_fetch_assoc($r2)))
+
+	}
+	
+	$sql2 = "SHOW COLUMNS FROM $table";
+	try
 	{
-		if(!isset($caption2))
+		$ldb_rs = $database2->prepare($sql2);	
+		$ldb_rs->execute();		
+		$arr1 = $ldb_rs->fetchAll(PDO::FETCH_ASSOC);
+		foreach($arr1 as $dt)
 		{
-			$caption2 = array_keys($dt);
+			if(!isset($caption2))
+			{
+				$caption2 = array_keys($dt);
+			}
+			$tabledata['db2'][$dt['Field']] = $dt;
 		}
-		$tabledata['db2'][$dt['Field']] = $dt;
-	}
-	}
-	else
-	{
 		$caption2 = array('Field', 'Type', 'Null', 'Key', 'Default', 'Extra');
 	}
-	echo json_encode(
-		array(
-			'tb1'=>array(
-				'name'=>$table, 
-				'colcaption'=>$caption1, 
-				'coldata'=>$tabledata['db1']
-				)
-			,
-			'tb2'=>array(
-				'name'=>$table, 
-				'colcaption'=>$caption2, 
-				'coldata'=>$tabledata['db2']
-				)
+	catch(Exception $e)
+	{
+		
+	}
+	
+	$data = array(
+		'tb1'=>array(
+			'name'=>$table, 
+			'colcaption'=>$caption1, 
+			'coldata'=>$tabledata['db1']
 			)
+		,
+		'tb2'=>array(
+			'name'=>$table, 
+			'colcaption'=>$caption2, 
+			'coldata'=>$tabledata['db2']
+			)
+		);
+	
+	echo json_encode(
+		$data
 	);
 }
 

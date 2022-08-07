@@ -25,26 +25,32 @@ if(isset($_POST['db1']) && isset($_POST['db2']))
 	$user2 = (strlen(@$_POST['user2']))?(trim($_POST['user2'])):'root';
 	$pass2 = (strlen(@$_POST['pass2']))?(trim($_POST['pass2'])):'';
 		
-	$connection1 = @mysql_connect($host1.":".$port1, $user1, $pass1);
-	$connection2 = @mysql_connect($host2.":".$port2, $user2, $pass2);
-	
 
-	if(!$connection1 || !$connection2)
-	{
-		if(!$connection1) $s1 = false; else $s1 = true;
-		if(!$connection2) $s2 = false; else $s2 = true;
-		$output = array(
-		"db1"=>array("connect"=>$s1, "selectdb"=>$s1, "data"=>null), 
-		"db2"=>array("connect"=>$s2, "selectdb"=>$s2, "data"=>null), 
-		'diftbl'=>null
-		);
-		echo json_encode($output);
-		exit();
-	}
-	
 	// test select db
-	$sdb1 = @mysql_select_db($db1, $connection1);
-	$sdb2 = @mysql_select_db($db2, $connection2);
+	
+	try
+	{
+		
+		$tz = date('P');
+		$database1 = new PDO("mysql:host=".$host1."; port=".$port1."; dbname=".$db1, $user1, $pass1);
+		$database1->exec("SET time_zone='$tz'");
+		$sdb1 = true;
+	}
+	catch(PDOException $e)
+	{
+	}
+
+	try
+	{
+		$tz = date('P');
+		$database2 = new PDO("mysql:host=".$host2."; port=".$port2."; dbname=".$db2, $user2, $pass2);
+		$database2->exec("SET time_zone='$tz'");
+		$sdb2 = true;
+	}
+	catch(PDOException $e)
+	{
+	}
+
 	if(!$sdb1 || !$sdb2)
 	{
 		if(!$sdb1) $s1 = false; else $s1 = true;
@@ -59,23 +65,38 @@ if(isset($_POST['db1']) && isset($_POST['db2']))
 	}
 	
 	
-	mysql_select_db($db1, $connection1);
+	
 	$sql1 = "show table status";
-	$res1 = mysql_query($sql1, $connection1);
-	$arr1 = array();	
-	while(($dt = mysql_fetch_assoc($res1)))
+	try
 	{
-		$arr1[] = $dt;
+		$ldb_rs = $database1->prepare($sql1);	
+		$ldb_rs->execute();		
+		if($ldb_rs->rowCount())
+		{
+			$arr1 = $ldb_rs->fetchAll(PDO::FETCH_ASSOC);
+		}
+	}
+	catch(Exception $e)
+	{
+
 	}
 	
-	mysql_select_db($db2, $connection2);
 	$sql2 = "show table status";
-	$res2 = mysql_query($sql2, $connection2);
-	$arr2 = array();
-	while(($dt = mysql_fetch_assoc($res2)))
+	try
 	{
-		$arr2[] = $dt;
+		$ldb_rs = $database2->prepare($sql2);	
+		$ldb_rs->execute();		
+		if($ldb_rs->rowCount())
+		{
+			$arr2 = $ldb_rs->fetchAll(PDO::FETCH_ASSOC);
+		}
 	}
+	catch(Exception $e)
+	{
+
+	}
+	
+	
 	
 	// field list
 	$fields = array();
@@ -86,29 +107,54 @@ if(isset($_POST['db1']) && isset($_POST['db2']))
 	{
 		$table = $val['Name'];
 		$far = array();
-		mysql_select_db($db1, $connection1);
 		$sql = "SHOW COLUMNS FROM `$table`";
-		$r = mysql_query($sql, $connection1);
-		while(($dt = mysql_fetch_assoc($r)))
+
+		try
 		{
-			$far[] = $dt['Field'].'|'.$dt['Type'].'|'.$dt['Null'].'|'.$dt['Key'].'|'.$dt['Default'].'|'.$dt['Extra'];
+			$ldb_rs = $database1->prepare($sql);	
+			$ldb_rs->execute();		
+			if($ldb_rs->rowCount())
+			{
+				$result = $ldb_rs->fetchAll(PDO::FETCH_ASSOC);
+				foreach($result as $dt)
+				{
+					$far[] = $dt['Field'].'|'.$dt['Type'].'|'.$dt['Null'].'|'.$dt['Key'].'|'.$dt['Default'].'|'.$dt['Extra'];
+				}
+			}
+		}
+		catch(Exception $e)
+		{
+
 		}
 		$fields['db1'][$table] = implode(",", $far);
 	}
-	
+
 	foreach($arr2 as $key=>$val)
 	{
 		$table = $val['Name'];
 		$far = array();
-		mysql_select_db($db2, $connection2);
 		$sql = "SHOW COLUMNS FROM `$table`";
-		$r = mysql_query($sql, $connection2);
-		while(($dt = mysql_fetch_assoc($r)))
+
+		try
 		{
-			$far[] = $dt['Field'].'|'.$dt['Type'].'|'.$dt['Null'].'|'.$dt['Key'].'|'.$dt['Default'].'|'.$dt['Extra'];
+			$ldb_rs = $database2->prepare($sql);	
+			$ldb_rs->execute();		
+			if($ldb_rs->rowCount())
+			{
+				$result = $ldb_rs->fetchAll(PDO::FETCH_ASSOC);
+				foreach($result as $dt)
+				{
+					$far[] = $dt['Field'].'|'.$dt['Type'].'|'.$dt['Null'].'|'.$dt['Key'].'|'.$dt['Default'].'|'.$dt['Extra'];
+				}
+			}
+		}
+		catch(Exception $e)
+		{
+
 		}
 		$fields['db2'][$table] = implode(",", $far);
 	}
+		
 	
 	// list table which differ
 	
