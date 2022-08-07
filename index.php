@@ -805,7 +805,7 @@ function showModal(selector, options)
         </table>
         </div>
         
-	  <span class="title">CompareDB version 1.1 - Created by <a href="http://www.planetbiru.com" target="_blank">Planetbiru Studio</a></span>
+	  <span class="title">CompareDB version 1.1 - Created by <a href="https://www.planetbiru.com/" target="_blank">Planetbiru Studio</a></span>
 	  </form>
     </div>
 
