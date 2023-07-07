@@ -1,4 +1,5 @@
 <?php
+
 function removequote($input)
 {
 	return str_replace(array('"', "'", "`"), "", $input);
@@ -10,6 +11,7 @@ if(isset($_POST))
 		$_POST[$key] = removequote($val);
 	}
 }
+
 if(isset($_POST['db1']) && isset($_POST['db2']) && isset($_POST['tb']))
 {
 	$host1 = (strlen(@$_POST['host1']))?(trim($_POST['host1'])):'localhost';
@@ -38,6 +40,7 @@ if(isset($_POST['db1']) && isset($_POST['db2']) && isset($_POST['tb']))
 	}
 	catch(PDOException $e)
 	{
+		// do nothing
 	}
 
 	try
@@ -49,12 +52,13 @@ if(isset($_POST['db1']) && isset($_POST['db2']) && isset($_POST['tb']))
 	}
 	catch(PDOException $e)
 	{
+		// do nothing
 	}
 
 	if(!$sdb1 || !$sdb2)
 	{
-		if(!$sdb1) $s1 = false; else $s1 = true;
-		if(!$sdb2) $s2 = false; else $s2 = true;
+		if(!$sdb1) {$s1 = false;} else {$s1 = true;}
+		if(!$sdb2) {$s2 = false;} else {$s2 = true;}
 		$output = array(
 		"db1"=>array("connect"=>true, "selectdb"=>$s1, "data"=>null), 
 		"db2"=>array("connect"=>true, "selectdb"=>$s2, "data"=>null), 
@@ -91,7 +95,7 @@ if(isset($_POST['db1']) && isset($_POST['db2']) && isset($_POST['tb']))
 	}
 	catch(Exception $e)
 	{
-
+		// do nothing
 	}
 	
 	$sql2 = "SHOW COLUMNS FROM $table";
@@ -112,7 +116,7 @@ if(isset($_POST['db1']) && isset($_POST['db2']) && isset($_POST['tb']))
 	}
 	catch(Exception $e)
 	{
-		
+		// do nothing
 	}
 	
 	$data = array(
@@ -133,5 +137,3 @@ if(isset($_POST['db1']) && isset($_POST['db2']) && isset($_POST['tb']))
 		$data
 	);
 }
-
-?>

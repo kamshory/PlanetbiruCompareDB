@@ -132,7 +132,7 @@ input, select, button, textarea{
 	color:#555555;
 	text-decoration:none;
 }
-.table-container .missing-table1 td:nth-child(2) a, .table-container .missing-table2 td:nth-child(2) a{
+.table-container .missing-table1 td:nth-child(2) a.table-name, .table-container .missing-table2 td:nth-child(2) a.table-name{
 	color:#FF0000;
 	font-weight:bold;
 }
@@ -215,6 +215,23 @@ input, select, button, textarea{
     overflow: hidden;
 	min-width:80px;
 }
+.link-create{
+	
+}
+.missing-table1 .link-create, .missing-table2 .link-create{
+	display: inline;
+}
+
+.textarea.textarea {
+	width: 100%;
+	box-sizing: border-box;
+	height: 200px;
+	resize: vertical;
+	padding: 10px;
+}
+.textarea.textarea:focus-visible, .textarea.textarea:focus{
+	outline: none;
+} 
 </style>
 <script type="text/javascript">
 /*
@@ -237,7 +254,106 @@ function putSetting(source, destination)
 		}
 	}
 }
+
+function createTextarea()
+{
+	let div = document.createElement('div');
+	let textarea = document.createElement('textarea');
+	div.classList.add('textarea-wrapper');
+	textarea.classList.add('textarea');
+	textarea.setAttribute('spellcheck', 'false');
+	div.appendChild(textarea);
+	return div.outerHTML;
+}
 window.onload = function(){
+	
+	$(document).on('click', '.link-create a', function(e){
+		
+		var host = $('#host1').val();
+		var port = $('#port1').val();
+		var db = $('#db1').val();
+		var user = $('#user1').val();
+		var pass = $('#pass1').val();
+		
+		
+		e.preventDefault();
+		let table = $(this).attr('data-table');
+		console.log('ink-create', table);
+		$.ajax({
+			'type':'POST',
+			'url':'ajax-show-create-table.php',
+			'dataType':'json',
+			'data':{
+				'host':host,
+				'db':db,
+				'user':user,
+				'pass':pass,
+				'table':table
+				},
+			'success':function(data){
+				console.log(data)
+				
+				showModal('.dialog-modal', {
+					content:createTextarea(),
+					title:'Create Table ' + table,
+					width:360,
+					buttons:{
+						"Close":function(){
+							$('.dialog-modal').fadeOut(200);
+						}
+					}
+				});
+				$('textarea.textarea').val(data['Create Table']);
+			},
+			'error':function(err){
+				console.log(err)
+			}
+		});
+	});
+	
+	$(document).on('click', '.missing-table2 .link-create a', function(e){
+		
+		var host = $('#host2').val();
+		var port = $('#port2').val();
+		var db = $('#db2').val();
+		var user = $('#user2').val();
+		var pass = $('#pass2').val();
+		
+		e.preventDefault();
+		let table = $(this).attr('data-table');
+		console.log('ink-create', table);
+		$.ajax({
+			'type':'POST',
+			'url':'ajax-show-create-table.php',
+			'dataType':'json',
+			'data':{
+				'host':host,
+				'db':db,
+				'user':user,
+				'table':table
+				},
+			'success':function(data){
+				console.log(data)
+				
+				showModal('.dialog-modal', {
+					content:createTextarea(data['Create Table']),
+					title:'Create Table ' + table,
+					width:360,
+					buttons:{
+						"Close":function(){
+							$('.dialog-modal').fadeOut(200);
+						}
+					}
+				});
+				$('textarea.textarea').val(data['Create Table']);
+			},
+			'error':function(err){
+				console.log(err)
+			}
+		});
+	});
+	
+	
 	$(document).on('click', '#setting', function(){
 		$('.setting-form').fadeIn(200);
 		setTimeout(function(){
@@ -409,7 +525,7 @@ window.onload = function(){
 							j = data.db1.data[i];
 							$('.table1-container table tbody').append('<tr data-table="'+j.Name+'">\r\n'+
 							'<td align="right"><a href="#" data-table="'+j.Name+'">'+no+'</a></td>\r\n'+
-							'<td><a href="#" data-table="'+j.Name+'">'+j.Name+'</a></td>\r\n'+
+							'<td><a href="#" data-table="'+j.Name+'" class="table-name">'+j.Name+'</a> <span class="link-create"><a href="#" data-table="'+j.Name+'">[create]</a></span></td>\r\n'+
 							'<td><a href="#" data-table="'+j.Name+'">'+j.Engine+'</a></td>\r\n'+
 							'<td><a href="#" data-table="'+j.Name+'">'+j.Version+'</a></td>\r\n'+
 							'<td><a href="#" data-table="'+j.Name+'">'+j.Row_format+'</a></td>\r\n'+
@@ -467,7 +583,7 @@ window.onload = function(){
 						for(i in data.diftbl)
 						{
 							var j = data.diftbl[i];
-							$('.table-container .table tbody tr[data-table="'+j+'"] td:nth-child(2)').append(' <span class="asterisk">*</span>');
+							$('  <span class="asterisk">*</span>').insertAfter('.table-container .table tbody tr[data-table="'+j+'"] > td:nth-child(2) > a:nth-child(1)');
 							ndiff1++;
 							ndiff2 = ndiff1;
 						}
