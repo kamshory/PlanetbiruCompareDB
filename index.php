@@ -525,7 +525,7 @@ window.onload = function(){
 							j = data.db1.data[i];
 							$('.table1-container table tbody').append('<tr data-table="'+j.Name+'">\r\n'+
 							'<td align="right"><a href="#" data-table="'+j.Name+'">'+no+'</a></td>\r\n'+
-							'<td><a href="#" data-table="'+j.Name+'" class="table-name">'+j.Name+'</a> <span class="link-create"><a href="#" data-table="'+j.Name+'">[create]</a></span></td>\r\n'+
+							'<td><a href="#" data-table="'+j.Name+'" class="table-name">'+j.Name+'</a></td>\r\n'+
 							'<td><a href="#" data-table="'+j.Name+'">'+j.Engine+'</a></td>\r\n'+
 							'<td><a href="#" data-table="'+j.Name+'">'+j.Version+'</a></td>\r\n'+
 							'<td><a href="#" data-table="'+j.Name+'">'+j.Row_format+'</a></td>\r\n'+
