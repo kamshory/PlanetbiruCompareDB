@@ -109,8 +109,19 @@ function listTables(e) {
     if (db1.host === db2.host && db1.port === db2.port && db1.db === db2.db) {
         return showCustomAlert("The databases must be different.");
     }
-    
-    $.post("ajax-show-table.php", { ...db1, ...db2 }, function (data) {
+    let data = {
+		'host1':db1.host,
+		'port1':db1.port,
+		'db1':db1.db,
+		'user1':db1.user,
+		'pass1':db1.pass,
+		'host2':db2.host,
+		'port2':db2.port,
+		'db2':db2.db,
+		'user2':db2.user,
+		'pass2':db2.pass
+		}
+    $.post("ajax-show-table.php", data, function (data) {
         if (!data.db1.connect || !data.db2.connect) {
             return showCustomAlert("Cannot connect to one or both databases.");
         }

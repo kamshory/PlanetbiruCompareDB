@@ -25,7 +25,8 @@ if (isset($_POST['db1']) && isset($_POST['db2'])) {
 
 
 	// test select db
-
+	$sdb1 = false;
+	$sdb2 = false;
 	try {
 
 		$tz = date('P');
@@ -34,6 +35,7 @@ if (isset($_POST['db1']) && isset($_POST['db2'])) {
 		$sdb1 = true;
 	} catch (PDOException $e) {
 		// do nothing
+		error_log($e->getMessage());
 	}
 
 	try {
@@ -43,6 +45,7 @@ if (isset($_POST['db1']) && isset($_POST['db2'])) {
 		$sdb2 = true;
 	} catch (PDOException $e) {
 		// do nothing
+		error_log($e->getMessage());
 	}
 
 	if (!$sdb1 || !$sdb2) {
@@ -61,6 +64,7 @@ if (isset($_POST['db1']) && isset($_POST['db2'])) {
 			"db2" => array("connect" => true, "selectdb" => $s2, "data" => null),
 			'diftbl' => null
 		);
+		error_log(json_encode($output, JSON_PRETTY_PRINT));
 		echo json_encode($output);
 		exit();
 	}
