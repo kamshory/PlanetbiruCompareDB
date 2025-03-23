@@ -23,11 +23,24 @@ function createTextarea() {
 
 function initEventListeners() {
     $(document).on("click", ".link-create a", handleCreateTable);
-    $(document).on("click", "#setting", () => $(".setting-form").fadeIn(200));
-    $(document).on("click", handleSettingClick);
+    $(document).on("click", "#setting", function(e){
+		showSettingForm(e);
+	});
+    $(document).on("click", function(e){
+		handleSettingClick(e);
+	});
     $(document).on("change", ".database-setting input", saveDatabaseSettings);
     $(document).on("click", ".swap-control", swapDatabaseSettings);
-    $(document).on("click", "#list-tables", listTables);
+    $(document).on("click", "#list-tables", function(e){
+		listTables(e);
+	});
+}
+
+function showSettingForm(e)
+{
+	e.preventDefault();
+	e.stopPropagation();
+	$(".setting-form").css('display', 'block');
 }
 
 function handleCreateTable(e) {
@@ -57,9 +70,12 @@ function getDatabaseCredentials(id) {
     };
 }
 
-function handleSettingClick() {
-    clearTimeout(timeoutHandler);
-    timeoutHandler = setTimeout(() => $(".setting-form").fadeOut(200), 100);
+function handleSettingClick(e) {
+	clearTimeout(timeoutHandler);
+	if(!e.target.closest('.setting-form'))
+	{
+		timeoutHandler = setTimeout(() => $(".setting-form").fadeOut(200), 100);
+	}
 }
 
 function saveDatabaseSettings() {
@@ -80,10 +96,13 @@ function swapDatabaseSettings(e) {
     $(".database-setting input").change();
 }
 
-function listTables() {
+function listTables(e) {
+	e.preventDefault();
+	e.stopPropagation();
     let db1 = getDatabaseCredentials(1);
     let db2 = getDatabaseCredentials(2);
-    
+    console.log(db1);
+	console.log(db2);
     if (!db1.db || !db2.db) {
         return showCustomAlert("Please complete setting.");
     }
@@ -161,4 +180,43 @@ function showCustomAlert(message) {
         width: 360,
         buttons: { "Close": () => $(".dialog-modal").fadeOut(200) }
     });
+}
+
+
+function showModal(selector, options)
+{
+	$(selector).empty().append('<div class="dialog-modal-header"><h3></h3></div><div class="dialog-modal-body"></div><div class="dialog-modal-footer"></div>');
+	options = options || {};
+	let content = options.content || '';
+	let title = options.title || '';
+	let buttons = options.buttons || {};
+	let i, caption;
+	if(typeof buttons == 'object')
+	{
+		for(i in buttons)
+		{
+			caption = i;
+			let btn = document.createElement('button');
+			btn.innerText = caption;
+			btn.addEventListener('click', buttons[i]);
+			$(selector).find('.dialog-modal-footer')[0].appendChild(btn);
+		}
+	}
+	
+	$(selector).find('.dialog-modal-body').html(content);
+	$(selector).find('.dialog-modal-header h3').text(title);
+	let dw = options.width || 400;
+	$(selector).css({
+		width:dw
+	})
+	let ww = $(window).width();
+	let wh = $(window).height();
+	let dh = $(selector).height();
+	let dl = (ww - dw) / 2;
+	let dt = (wh - dh) / 2;
+	$(selector).css({
+		left:dl+'px',
+		top:dt+'px',
+	});
+	$(selector).fadeIn(200);
 }

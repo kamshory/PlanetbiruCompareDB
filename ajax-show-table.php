@@ -8,8 +8,9 @@ if (isset($_POST)) {
 		$_POST[$key] = removequote($val);
 	}
 }
-
+error_log(print_r($_POST, true));
 if (isset($_POST['db1']) && isset($_POST['db2'])) {
+
 	$host1 = (strlen(@$_POST['host1'])) ? (trim($_POST['host1'])) : 'localhost';
 	$port1 = (strlen(@$_POST['port1'])) ? (trim($_POST['port1'])) : 3306;
 	$db1 = trim(@$_POST['db1']);
