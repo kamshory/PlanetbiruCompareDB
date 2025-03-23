@@ -6,7 +6,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>CompareDB version 1.2</title>
 <script type="text/javascript" src="jquery.js"></script>
+<script src="assets/script.js"></script>
 <link rel="stylesheet" href="assets/style.css">
+
 
 <script type="text/javascript">
 /*
