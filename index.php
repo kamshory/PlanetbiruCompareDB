@@ -72,6 +72,7 @@ http://www.planetbiru.com
     	<div class="table-container table2-container"></div>
         <div class="field-container field2-container"></div>
     </div>
+    <div id="action-container"></div>
     <div class="clear"></div>
 </div>    
     

@@ -220,6 +220,8 @@ textarea {
     border: 1px solid #CCC;
     box-sizing: border-box;
     background-color: #FFFFFF;
+    width: 100vw;
+    height: 100vh;
 }
 
 .dialog-modal-body {
@@ -271,4 +273,17 @@ textarea {
 .textarea.textarea:focus-visible,
 .textarea.textarea:focus {
     outline: none;
+}
+.dialog-modal textarea {
+    font-size: 12px;
+}
+#action-container {
+    padding: 10px;
+    clear: both;
+    text-align: center;
+}
+#action-container button {
+    padding: 8px 16px;
+    font-size: 12px;
+    cursor: pointer;
 }

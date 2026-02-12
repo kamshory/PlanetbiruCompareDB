@@ -3,6 +3,15 @@ function removequote($input)
 {
 	return str_replace(array('"', "'", "`"), "", $input);
 }
+/**
+ * Fungsi pembantu untuk mengambil data POST dengan nilai default
+ * Kompatibel dengan PHP 5.2 ke atas
+ */
+function get_post($key, $default = '') {
+    return (isset($_POST[$key]) && strlen(trim($_POST[$key])) > 0)
+        ? trim($_POST[$key])
+        : $default;
+}
 if (isset($_POST)) {
 	foreach ($_POST as $key => $val) {
 		$_POST[$key] = removequote($val);
@@ -10,12 +19,15 @@ if (isset($_POST)) {
 }
 
 if (isset($_POST['db'])) {
-	$host = (strlen(@$_POST['host'])) ? (trim($_POST['host'])) : 'localhost';
-	$port = (strlen(@$_POST['port'])) ? (trim($_POST['port'])) : 3306;
-	$db = trim(@$_POST['db']);
-	$user = (strlen(@$_POST['user'])) ? (trim($_POST['user'])) : 'root';
-	$pass = (strlen(@$_POST['pass'])) ? (trim($_POST['pass'])) : '';
-	$table = (strlen(@$_POST['table'])) ? (trim($_POST['table'])) : '';
+
+	// Konfigurasi Database 1
+	$host = get_post('host', 'localhost');
+	$port = get_post('port', 3306);
+	$db   = get_post('db', '');
+	$user = get_post('user', 'root');
+	$pass = get_post('pass', '');
+	$table = get_post('table', '');
+
 
 
 	// test select db
