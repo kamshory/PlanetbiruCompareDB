@@ -1,165 +1,109 @@
 <?php
-function removequote($input)
-{
-	return str_replace(array('"', "'", "`"), "", $input);
-}
-if (isset($_POST)) {
-	foreach ($_POST as $key => $val) {
-		$_POST[$key] = removequote($val);
-	}
-}
+require_once "lib.php";
 
 if (isset($_POST['db1']) && isset($_POST['db2'])) {
-	$host1 = (strlen(@$_POST['host1'])) ? (trim($_POST['host1'])) : 'localhost';
-	$port1 = (strlen(@$_POST['port1'])) ? (trim($_POST['port1'])) : 3306;
-	$db1 = trim(@$_POST['db1']);
-	$user1 = (strlen(@$_POST['user1'])) ? (trim($_POST['user1'])) : 'root';
-	$pass1 = (strlen(@$_POST['pass1'])) ? (trim($_POST['pass1'])) : '';
+    // Konfigurasi Database 1
+    $host1 = get_post('host1', 'localhost');
+    $port1 = get_post('port1', 3306);
+    $db1   = get_post('db1', '');
+    $user1 = get_post('user1', 'root');
+    $pass1 = get_post('pass1', '');
 
-	$host2 = (strlen(@$_POST['host2'])) ? (trim($_POST['host2'])) : 'localhost';
-	$port2 = (strlen(@$_POST['port2'])) ? (trim($_POST['port2'])) : 3306;
-	$db2 = trim(@$_POST['db2']);
-	$user2 = (strlen(@$_POST['user2'])) ? (trim($_POST['user2'])) : 'root';
-	$pass2 = (strlen(@$_POST['pass2'])) ? (trim($_POST['pass2'])) : '';
+    // Konfigurasi Database 2
+    $host2 = get_post('host2', 'localhost');
+    $port2 = get_post('port2', 3306);
+    $db2   = get_post('db2', '');
+    $user2 = get_post('user2', 'root');
+    $pass2 = get_post('pass2', '');
+    $sdb1 = false;
+    $sdb2 = false;
+    $error = "";
 
+    // Koneksi ke database pertama
+    try {
+        $database1 = get_db_connection($host1, $port1, $db1, $user1, $pass1);
+        $sdb1 = true;
+    } catch (PDOException $e) {
+        $error .= "Database 1: " . $e->getMessage() . "\n";
+        error_log("Database 1 connection error: " . $e->getMessage());
+    }
 
-	// test select db
+    // Koneksi ke database kedua
+    try {
+        $database2 = get_db_connection($host2, $port2, $db2, $user2, $pass2);
+        $sdb2 = true;
+    } catch (PDOException $e) {
+        $error .= "Database 2: " . $e->getMessage() . "\n";
+        error_log("Database 2 connection error: " . $e->getMessage());
+    }
 
-	try {
+    // Jika salah satu database tidak terhubung, keluarkan JSON respons
+    if (!$sdb1 || !$sdb2) {
+        echo json_encode(array('error' => trim($error)));
+        exit();
+    }
 
-		$tz = date('P');
-		$database1 = new PDO("mysql:host=" . $host1 . "; port=" . $port1 . "; dbname=" . $db1, $user1, $pass1);
-		$database1->exec("SET time_zone='$tz'");
-		$sdb1 = true;
-	} catch (PDOException $e) {
-		// do nothing
-	}
+    // Fungsi untuk mendapatkan daftar tabel dari database
+    function getTables($db) {
+        $tables = array();
+        try {
+            $stmt = $db->query("SHOW TABLE STATUS");
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $tables[] = $row;
+            }
+        } catch (Exception $e) {
+            error_log("Error fetching tables: " . $e->getMessage());
+        }
+        return $tables;
+    }
 
-	try {
-		$tz = date('P');
-		$database2 = new PDO("mysql:host=" . $host2 . "; port=" . $port2 . "; dbname=" . $db2, $user2, $pass2);
-		$database2->exec("SET time_zone='$tz'");
-		$sdb2 = true;
-	} catch (PDOException $e) {
-		// do nothing
-	}
+    $arr1 = getTables($database1);
+    $arr2 = getTables($database2);
 
-	if (!$sdb1 || !$sdb2) {
-		if (!$sdb1) {
-			$s1 = false;
-		} else {
-			$s1 = true;
-		}
-		if (!$sdb2) {
-			$s2 = false;
-		} else {
-			$s2 = true;
-		}
-		$output = array(
-			"db1" => array("connect" => true, "selectdb" => $s1, "data" => null),
-			"db2" => array("connect" => true, "selectdb" => $s2, "data" => null),
-			'diftbl' => null
-		);
-		echo json_encode($output);
-		exit();
-	}
+    // Fungsi untuk mendapatkan struktur tabel
+    function getTableFields($db, $tables) {
+        $fields = array();
+        foreach ($tables as $table) {
+            $tableName = $table['Name'];
+            $fieldArr = array();
+            try {
+                $stmt = $db->prepare("SHOW COLUMNS FROM `$tableName`");
+                $stmt->execute();
+                while ($dt = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $fieldArr[] = $dt['Field'] . '|' . $dt['Type'] . '|' . $dt['Null'] . '|' . $dt['Key'] . '|' . $dt['Default'] . '|' . $dt['Extra'];
+                }
+            } catch (Exception $e) {
+                error_log("Error fetching fields for table $tableName: " . $e->getMessage());
+            }
+            $fields[$tableName] = implode(",", $fieldArr);
+        }
+        return $fields;
+    }
 
+    $fields['db1'] = getTableFields($database1, $arr1);
+    $fields['db2'] = getTableFields($database2, $arr2);
 
+    // Mencari tabel yang berbeda
+    $diftbl = array();
+    foreach ($fields['db1'] as $key => $val) {
+        if (isset($fields['db2'][$key]) && $val !== $fields['db2'][$key]) {
+            $diftbl[] = $key;
+        }
+    }
+    foreach ($fields['db2'] as $key => $val) {
+        if (isset($fields['db1'][$key]) && $val !== $fields['db1'][$key]) {
+            $diftbl[] = $key;
+        }
+    }
+    $diftbl = array_unique($diftbl);
 
-	$sql1 = "show table status";
-	try {
-		$ldb_rs = $database1->prepare($sql1);
-		$ldb_rs->execute();
-		if ($ldb_rs->rowCount()) {
-			$arr1 = $ldb_rs->fetchAll(PDO::FETCH_ASSOC);
-		}
-	} catch (Exception $e) {
-		// do nothing
-	}
+    // Mengembalikan output JSON
+    $output = array(
+        "db1" => array("connect" => true, "selectdb" => true, "data" => $arr1),
+        "db2" => array("connect" => true, "selectdb" => true, "data" => $arr2),
+        "diftbl" => $diftbl
+    );
 
-	$sql2 = "show table status";
-	try {
-		$ldb_rs = $database2->prepare($sql2);
-		$ldb_rs->execute();
-		if ($ldb_rs->rowCount()) {
-			$arr2 = $ldb_rs->fetchAll(PDO::FETCH_ASSOC);
-		}
-	} catch (Exception $e) {
-		// do nothing
-	}
-
-
-
-	// field list
-	$fields = array();
-	$fields['db1'] = array();
-	$fields['db2'] = array();
-
-	foreach ($arr1 as $key => $val) {
-		$table = $val['Name'];
-		$far = array();
-		$sql = "SHOW COLUMNS FROM `$table`";
-
-		try {
-			$ldb_rs = $database1->prepare($sql);
-			$ldb_rs->execute();
-			if ($ldb_rs->rowCount()) {
-				$result = $ldb_rs->fetchAll(PDO::FETCH_ASSOC);
-				foreach ($result as $dt) {
-					$far[] = $dt['Field'] . '|' . $dt['Type'] . '|' . $dt['Null'] . '|' . $dt['Key'] . '|' . $dt['Default'] . '|' . $dt['Extra'];
-				}
-			}
-		} catch (Exception $e) {
-			// do nothing
-		}
-		$fields['db1'][$table] = implode(",", $far);
-	}
-
-	foreach ($arr2 as $key => $val) {
-		$table = $val['Name'];
-		$far = array();
-		$sql = "SHOW COLUMNS FROM `$table`";
-
-		try {
-			$ldb_rs = $database2->prepare($sql);
-			$ldb_rs->execute();
-			if ($ldb_rs->rowCount()) {
-				$result = $ldb_rs->fetchAll(PDO::FETCH_ASSOC);
-				foreach ($result as $dt) {
-					$far[] = $dt['Field'] . '|' . $dt['Type'] . '|' . $dt['Null'] . '|' . $dt['Key'] . '|' . $dt['Default'] . '|' . $dt['Extra'];
-				}
-			}
-		} catch (Exception $e) {
-			// do nothing
-		}
-		$fields['db2'][$table] = implode(",", $far);
-	}
-
-
-	// list table which differ
-
-	$diftbl = array();
-	foreach ($fields['db1'] as $key => $val) {
-		if (isset($fields['db2'][$key])) {
-			if ($val != $fields['db2'][$key]) {
-				$diftbl[] = $key;
-			}
-		}
-	}
-	foreach ($fields['db2'] as $key => $val) {
-		if (isset($fields['db1'][$key])) {
-			if ($val != $fields['db1'][$key]) {
-				$diftbl[] = $key;
-			}
-		}
-	}
-	$diftbl = array_unique($diftbl);
-
-
-	$output = array(
-		"db1" => array("connect" => true, "selectdb" => true, "data" => $arr1),
-		"db2" => array("connect" => true, "selectdb" => true, "data" => $arr2),
-		'diftbl' => $diftbl
-	);
-	echo json_encode($output);
+    echo json_encode($output);
 }
+?>
