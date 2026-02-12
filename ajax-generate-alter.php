@@ -1,14 +1,6 @@
 <?php
 error_reporting(0);
-
-/**
- * Fungsi pembantu untuk mengambil data POST
- */
-function get_post($key, $default = '') {
-    return (isset($_POST[$key]) && strlen(trim($_POST[$key])) > 0)
-        ? trim(str_replace(array('"', "'", "`"), "", $_POST[$key]))
-        : $default;
-}
+require_once "lib.php";
 
 /**
  * Membangun string definisi kolom SQL
@@ -51,8 +43,8 @@ if (isset($_POST['db1']) && isset($_POST['db2']) && isset($_POST['tb'])) {
     $table = get_post('tb');
 
     try {
-        $db_conn1 = new PDO("mysql:host=$host1;port=$port1;dbname=$db1", $user1, $pass1, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
-        $db_conn2 = new PDO("mysql:host=$host2;port=$port2;dbname=$db2", $user2, $pass2, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
+        $db_conn1 = get_db_connection($host1, $port1, $db1, $user1, $pass1);
+        $db_conn2 = get_db_connection($host2, $port2, $db2, $user2, $pass2);
     } catch (PDOException $e) {
         echo json_encode(array('error' => "Koneksi database gagal: " . $e->getMessage()));
         exit;

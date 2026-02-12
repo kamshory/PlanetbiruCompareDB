@@ -87,6 +87,10 @@ document.addEventListener("DOMContentLoaded", function() {
             if(!response) return;
             try {
                 var res = JSON.parse(response);
+                if (res.error) {
+                    showMessage(res.error, "Connection Error");
+                    return;
+                }
                 renderTableList(res);
             } catch (e) {
                 console.error("Error parsing JSON response", e);
@@ -152,6 +156,10 @@ document.addEventListener("DOMContentLoaded", function() {
             if(!response) return;
             try {
                 var res = JSON.parse(response);
+                if (res.error) {
+                    showMessage(res.error, "Connection Error");
+                    return;
+                }
                 renderFields(res);
             } catch (e) {
                 console.error("Error parsing JSON response", e);
@@ -270,13 +278,13 @@ document.addEventListener("DOMContentLoaded", function() {
             try {
                 var res = JSON.parse(response);
                 if (res.error) {
-                    alert("An error occurred: " + res.error);
+                    showMessage("An error occurred: " + res.error, "Error");
                     return;
                 }
                 showAlterSqlModal(tableName, res);
             } catch (e) {
                 console.error("Error parsing JSON for ALTER SQL", e);
-                alert("Could not process the request to generate SQL.");
+                showMessage("Could not process the request to generate SQL.", "Error");
             }
         });
     }
@@ -293,19 +301,32 @@ document.addEventListener("DOMContentLoaded", function() {
 
         var modalContent = `
             <div class="modal-content modal-content-large">
-                <button class="modal-close-btn" onclick="this.closest('.dialog-modal').style.display='none'">&times;</button>
-                <h3>Synchronize SQL for Table \`${tableName}\`</h3>
-                <div class="modal-flex-container">
-                    <div class="modal-flex-item">
-                        <h4>Make \`${db1Name}\` like \`${db2Name}\`</h4>
-                        <p>Run this SQL on Database 1:</p>
-                        <textarea class="modal-textarea" readonly>${sql1}</textarea>
+                <div class="modal-header">
+                    <button class="modal-close-btn" onclick="this.closest('.dialog-modal').style.display='none'">&times;</button>
+                    <h3>Synchronize SQL for Table \`${tableName}\`</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-flex-container">
+                        <div class="modal-flex-item">
+                            <h4>Make \`${db1Name}\` like \`${db2Name}\`</h4>
+                            <p>Run this SQL on Database 1:</p>
+                            <textarea class="modal-textarea" id="sql-db1" readonly>${sql1}</textarea>
+                            <div class="modal-action-bar">
+                                <button class="execute-btn" data-db="db1">Execute on DB1</button>
+                            </div>
+                        </div>
+                        <div class="modal-flex-item">
+                            <h4>Make \`${db2Name}\` like \`${db1Name}\`</h4>
+                            <p>Run this SQL on Database 2:</p>
+                            <textarea class="modal-textarea" id="sql-db2" readonly>${sql2}</textarea>
+                            <div class="modal-action-bar">
+                                <button class="execute-btn" data-db="db2">Execute on DB2</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="modal-flex-item">
-                        <h4>Make \`${db2Name}\` like \`${db1Name}\`</h4>
-                        <p>Run this SQL on Database 2:</p>
-                        <textarea class="modal-textarea" readonly>${sql2}</textarea>
-                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button onclick="this.closest('.dialog-modal').style.display='none'" class="btn-default">Close</button>
                 </div>
             </div>
         `;
@@ -313,9 +334,116 @@ document.addEventListener("DOMContentLoaded", function() {
         modal.innerHTML = modalContent;
         modal.style.display = "block";
 
+        var execBtns = modal.querySelectorAll(".execute-btn");
+        for (var i = 0; i < execBtns.length; i++) {
+            execBtns[i].addEventListener("click", function() {
+                var db = this.getAttribute("data-db");
+                var sql = document.getElementById("sql-" + db).value;
+                if (!sql || sql.trim().indexOf("--") === 0) {
+                    showMessage("Nothing to execute.", "Warning");
+                    return;
+                }
+                showConfirm("Are you sure you want to execute this query on " + db + "?", function() {
+                    executeQuery(db, sql);
+                });
+            });
+        }
+
         modal.onclick = function(e) {
             if (e.target === modal) modal.style.display = "none";
         };
+    }
+
+    function executeQuery(targetDb, sql) {
+        var data = getFormData();
+        data.target_db = targetDb;
+        data.sql = sql;
+        
+        var btn = document.querySelector(".execute-btn[data-db='" + targetDb + "']");
+        var originalText = "";
+        if(btn) {
+            originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "Executing...";
+        }
+
+        ajaxPost("ajax-execute-query.php", data, function(response) {
+            if(btn) {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+            try {
+                var res = JSON.parse(response);
+                if (res.success) {
+                    showMessage("Query executed successfully.", "Success");
+                } else {
+                    showMessage("Error: " + res.error, "Error");
+                }
+            } catch (e) {
+                console.error("Error parsing JSON response", e);
+                showMessage("Failed to execute query.", "Error");
+            }
+        });
+    }
+
+    function showConfirm(message, callback) {
+        var modal = document.createElement("div");
+        modal.className = "dialog-modal dialog-modal-top";
+        modal.style.display = "block";
+        
+        modal.innerHTML = "<div class='modal-content modal-content-medium modal-content-confirm'>" +
+            "<div class='modal-header'>" +
+            "<button class='modal-close-btn'>&times;</button>" +
+            "<h3>Confirmation</h3>" +
+            "</div>" +
+            "<div class='modal-body'>" + message + "</div>" +
+            "<div class='modal-footer'>" + 
+            "<button class='confirm-yes btn-confirm-yes'>Yes</button>" + 
+            "<button class='confirm-no btn-confirm-no'>No</button>" + 
+            "</div>" +
+            "</div>";
+            
+        document.body.appendChild(modal);
+        
+        var close = function() {
+            document.body.removeChild(modal);
+        };
+        
+        modal.querySelector(".modal-close-btn").addEventListener("click", close);
+        modal.querySelector(".confirm-no").addEventListener("click", close);
+        
+        modal.querySelector(".confirm-yes").addEventListener("click", function() {
+            close();
+            callback();
+        });
+        
+        modal.addEventListener("click", function(e) {
+            if(e.target === modal) close();
+        });
+    }
+
+    function showMessage(message, title) {
+        title = title || "Information";
+        var modal = document.querySelector(".dialog-modal");
+        if (modal) {
+            modal.innerHTML = "<div class='modal-content modal-content-medium modal-content-message'>" +
+                "<div class='modal-header'>" +
+                "<button class='modal-close-btn' onclick='this.closest(\".dialog-modal\").style.display=\"none\"'>&times;</button>" +
+                "<h3>" + title + "</h3>" +
+                "</div>" +
+                "<div class='modal-body'>" + message + "</div>" +
+                "<div class='modal-footer'>" + 
+                "<button onclick='this.closest(\".dialog-modal\").style.display=\"none\"' class='btn-default'>OK</button>" + 
+                "</div>" +
+                "</div>";
+            modal.style.display = "block";
+            
+            modal.onclick = function(e) {
+                if(e.target === modal) modal.style.display = "none";
+            };
+        } else {
+            alert(message);
+        }
     }
 
     function showCreateTable(dbKey, tableName) {
@@ -330,13 +458,24 @@ document.addEventListener("DOMContentLoaded", function() {
         ajaxPost("ajax-show-create-table.php", data, function(response) {
             try {
                 var res = JSON.parse(response);
+                if (res.error) {
+                    showMessage(res.error, "Error");
+                    return;
+                }
                 var sql = res["Create Table"];
                 var modal = document.querySelector(".dialog-modal");
                 if (modal) {
                     modal.innerHTML = "<div class='modal-content modal-content-medium'>" +
-                        "<button class='modal-close-btn-simple' onclick='this.closest(\".dialog-modal\").style.display=\"none\"'>X</button>" +
+                        "<div class='modal-header'>" +
+                        "<button class='modal-close-btn' onclick='this.closest(\".dialog-modal\").style.display=\"none\"'>&times;</button>" +
                         "<h3>Create Table " + tableName + "</h3>" +
+                        "</div>" +
+                        "<div class='modal-body'>" +
                         "<textarea class='modal-textarea'>" + sql + "</textarea>" +
+                        "</div>" +
+                        "<div class='modal-footer'>" +
+                        "<button onclick='this.closest(\".dialog-modal\").style.display=\"none\"' class='btn-default'>Close</button>" +
+                        "</div>" +
                         "</div>";
                     modal.style.display = "block";
                     

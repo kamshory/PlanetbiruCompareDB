@@ -1,18 +1,6 @@
 <?php
 header("Content-type: application/json");
-
-// 1. Fungsi sanitasi input
-function removequote($input) {
-    if (is_array($input)) return $input;
-    return str_replace(array('"', "'", "`"), "", $input);
-}
-
-// 2. Fungsi helper POST
-function get_post($key, $default = '') {
-    return (isset($_POST[$key]) && strlen(trim($_POST[$key])) > 0)
-        ? trim($_POST[$key])
-        : $default;
-}
+require_once "lib.php";
 
 /**
  * Fungsi Pengecekan Eksistensi Tabel
@@ -34,11 +22,6 @@ function check_table_exists($pdo, $dbname, $tablename) {
 // Eksekusi jika ada data POST
 if (isset($_POST['db']) || isset($_POST['tb'])) {
     
-    // Sanitasi semua input
-    foreach ($_POST as $key => $val) {
-        $_POST[$key] = removequote($val);
-    }
-
     $table = get_post('tb');
     if (empty($table)) {
         echo json_encode(array('error' => 'Nama tabel kosong'));
@@ -48,21 +31,11 @@ if (isset($_POST['db']) || isset($_POST['tb'])) {
     try {
         // Koneksi DB 1
         $db1_name = get_post('db1');
-        $db_conn1 = new PDO(
-            "mysql:host=".get_post('host1','localhost').";port=".get_post('port1',3306).";dbname=".$db1_name,
-            get_post('user1','root'),
-            get_post('pass1',''),
-            array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
-        );
+        $db_conn1 = get_db_connection(get_post('host1','localhost'), get_post('port1',3306), $db1_name, get_post('user1','root'), get_post('pass1',''));
 
         // Koneksi DB 2
         $db2_name = get_post('db2');
-        $db_conn2 = new PDO(
-            "mysql:host=".get_post('host2','localhost').";port=".get_post('port2',3306).";dbname=".$db2_name,
-            get_post('user2','root'),
-            get_post('pass2',''),
-            array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
-        );
+        $db_conn2 = get_db_connection(get_post('host2','localhost'), get_post('port2',3306), $db2_name, get_post('user2','root'), get_post('pass2',''));
 
         $result = array();
 
