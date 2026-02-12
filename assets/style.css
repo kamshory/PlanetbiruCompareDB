@@ -216,12 +216,88 @@ textarea {
 
 .dialog-modal {
     display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ccc;
+    margin: 50px auto;
+    position: relative;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.modal-content-large {
+    max-width: 90%;
+    width: 1200px;
+}
+
+.modal-content-medium {
+    max-width: 800px;
+}
+
+.modal-close-btn {
     position: absolute;
-    border: 1px solid #CCC;
-    box-sizing: border-box;
-    background-color: #FFFFFF;
-    width: 100vw;
-    height: 100vh;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+    font-size: 1.5em;
+    border: none;
+    background: transparent;
+    line-height: 1;
+}
+
+.modal-close-btn-simple {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+}
+
+.modal-flex-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-flex-item {
+    flex: 1;
+}
+
+.modal-textarea {
+    width: 100%;
+    height: 300px;
+    font-family: monospace;
+}
+
+.message-identical {
+    padding: 10px;
+    color: green;
+    font-weight: bold;
+}
+
+.table-list li {
+    cursor: pointer;
+}
+
+.table-list li.diff {
+    color: red;
+}
+
+.row-missing {
+    background-color: #ffcccc;
+}
+
+.row-diff {
+    background-color: #ffffcc;
 }
 
 .dialog-modal-body {
@@ -268,6 +344,10 @@ textarea {
     height: 200px;
     resize: vertical;
     padding: 10px;
+}
+textarea{
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 .textarea.textarea:focus-visible,
