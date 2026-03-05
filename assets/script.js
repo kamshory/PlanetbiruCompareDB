@@ -1,5 +1,6 @@
 class CompareDB {
-    constructor() {
+    constructor(translations) {
+        this.translations = translations || {};
         // DOM Elements
         this.form = document.forms["form1"];
         this.settingButton = document.getElementById("setting");
@@ -17,6 +18,15 @@ class CompareDB {
 
         // Bind initial events
         this.bindEvents();
+    }
+
+    // Translate helper
+    t(key, ...args) {
+        let text = this.translations[key] || key;
+        let i = 0;
+        return text.replace(/%s/g, () => {
+            return args[i++] !== undefined ? args[i - 1] : '%s';
+        });
     }
 
     // Binds event listeners to static elements on the page
@@ -111,7 +121,7 @@ class CompareDB {
             try {
                 const res = JSON.parse(response);
                 if (res.error) {
-                    this.showMessage(res.error, "Connection Error");
+                    this.showMessage(res.error, this.t("connection_error"));
                     return;
                 }
                 this.renderTableList(res);
@@ -183,7 +193,7 @@ class CompareDB {
             try {
                 const res = JSON.parse(response);
                 if (res.error) {
-                    this.showMessage(res.error, "Connection Error");
+                    this.showMessage(res.error, this.t("connection_error"));
                     return;
                 }
                 this.renderFields(res);
@@ -203,12 +213,12 @@ class CompareDB {
 
         if (this.actionContainer && tableName) {
             if (hasDiff) {
-                this.actionContainer.innerHTML = `<button id="generate-sql-btn">Generate Sync SQL for \`${tableName}\`</button>`;
+                this.actionContainer.innerHTML = `<button id="generate-sql-btn">${this.t("generate_sync_sql", tableName)}</button>`;
                 document.getElementById("generate-sql-btn").addEventListener("click", () => {
                     this.generateAlterSql(tableName);
                 });
             } else {
-                this.actionContainer.innerHTML = '<div class="message-identical">Tables are identical.</div>';
+                this.actionContainer.innerHTML = `<div class="message-identical">${this.t("tables_identical")}</div>`;
             }
         } else if (this.actionContainer) {
             this.actionContainer.innerHTML = "";
@@ -217,7 +227,7 @@ class CompareDB {
 
     // Helper to create the HTML for a field table
     _createFieldTable(tbData) {
-        if (!tbData || !tbData.coldata) return "Table not found in this database.";
+        if (!tbData || !tbData.coldata) return this.t("table_not_found");
 
         let html = "<table border='1' cellspacing='0' cellpadding='3' width='100%'>";
         html += "<thead><tr>";
@@ -280,25 +290,25 @@ class CompareDB {
         const btn = document.getElementById("generate-sql-btn");
         if (btn) {
             btn.disabled = true;
-            btn.textContent = "Generating...";
+            btn.textContent = this.t("generating");
         }
 
         this._ajaxPost("ajax-generate-alter.php", data, (response) => {
             if (btn) {
                 btn.disabled = false;
-                btn.textContent = `Generate Sync SQL for \`${tableName}\``;
+                btn.textContent = this.t("generate_sync_sql", tableName);
             }
 
             try {
                 const res = JSON.parse(response);
                 if (res.error) {
-                    this.showMessage("An error occurred: " + res.error, "Error");
+                    this.showMessage(res.error, this.t("error"));
                     return;
                 }
                 this.showAlterSqlModal(tableName, res);
             } catch (e) {
                 console.error("Error parsing JSON for ALTER SQL", e);
-                this.showMessage("Could not process the request to generate SQL.", "Error");
+                this.showMessage("Could not process the request to generate SQL.", this.t("error"));
             }
         });
     }
@@ -315,32 +325,32 @@ class CompareDB {
             <div class="modal-content modal-content-large">
                 <div class="modal-header">
                     <button class="modal-close-btn close-modal">&times;</button>
-                    <h3>Synchronize SQL for Table \`${tableName}\`</h3>
+                    <h3>${this.t("sync_sql_for_table", tableName)}</h3>
                 </div>
                 <div class="modal-body">
                     <div class="modal-flex-container">
                         <div class="modal-flex-item">
-                            <h4>Make \`${db1Name}\` like \`${db2Name}\`</h4>
-                            <p>Run this SQL on Database 1:</p>
+                            <h4>${this.t("make_db1_like_db2", db1Name, db2Name)}</h4>
+                            <p>${this.t("run_sql_on_db1")}</p>
                             <textarea class="modal-textarea" id="sql-db1" readonly>${sql1}</textarea>
                             <div class="modal-action-bar">
-                                <button class="btn btn-primary copy-btn" data-db="db1">Copy</button>
-                                <button class="btn btn-success execute-btn" data-db="db1">Execute on DB1</button>
+                                <button class="btn btn-primary copy-btn" data-db="db1">${this.t("copy")}</button>
+                                <button class="btn btn-success execute-btn" data-db="db1">${this.t("execute_on_db1")}</button>
                             </div>
                         </div>
                         <div class="modal-flex-item">
-                            <h4>Make \`${db2Name}\` like \`${db1Name}\`</h4>
-                            <p>Run this SQL on Database 2:</p>
+                            <h4>${this.t("make_db2_like_db1", db2Name, db1Name)}</h4>
+                            <p>${this.t("run_sql_on_db2")}</p>
                             <textarea class="modal-textarea" id="sql-db2" readonly>${sql2}</textarea>
                             <div class="modal-action-bar">
-                                <button class="btn btn-primary copy-btn" data-db="db2">Copy</button>
-                                <button class="btn btn-success execute-btn" data-db="db2">Execute on DB2</button>
+                                <button class="btn btn-primary copy-btn" data-db="db2">${this.t("copy")}</button>
+                                <button class="btn btn-success execute-btn" data-db="db2">${this.t("execute_on_db2")}</button>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary close-modal">Close</button>
+                    <button class="btn btn-secondary close-modal">${this.t("close")}</button>
                 </div>
             </div>
         `;
@@ -357,10 +367,10 @@ class CompareDB {
             btn.addEventListener("click", (e) => {
                 const textarea = e.target.closest(".modal-flex-item").querySelector("textarea");
                 navigator.clipboard.writeText(textarea.value).then(() => {
-                    this.showMessage("SQL copied to clipboard.", "Success");
+                    this.showMessage(this.t("sql_copied"), this.t("success"));
                 }).catch(err => {
                     console.error("Failed to copy text: ", err);
-                    this.showMessage("Failed to copy SQL.", "Error");
+                    this.showMessage(this.t("failed_copy"), this.t("error"));
                 });
             });
         });
@@ -370,10 +380,10 @@ class CompareDB {
                 const db = e.target.dataset.db;
                 const sql = document.getElementById(`sql-${db}`).value;
                 if (!sql || sql.trim().startsWith("--")) {
-                    this.showMessage("Nothing to execute.", "Warning");
+                    this.showMessage(this.t("nothing_to_execute"), this.t("warning"));
                     return;
                 }
-                this.showConfirm(`Are you sure you want to execute this query on ${db.toUpperCase()}?`, () => {
+                this.showConfirm(this.t("confirm_execute", db.toUpperCase()), () => {
                     this.executeQuery(db, sql);
                 });
             });
@@ -397,7 +407,7 @@ class CompareDB {
         if (btn) {
             originalText = btn.innerText;
             btn.disabled = true;
-            btn.innerText = "Executing...";
+            btn.innerText = this.t("execute") + "...";
         }
 
         this._ajaxPost("ajax-execute-query.php", data, (response) => {
@@ -408,13 +418,13 @@ class CompareDB {
             try {
                 const res = JSON.parse(response);
                 if (res.success) {
-                    this.showMessage("Query executed successfully. Please 'List Tables' again to see changes.", "Success");
+                    this.showMessage(this.t("query_executed"), this.t("success"));
                 } else {
-                    this.showMessage("Error: " + res.error, "Error");
+                    this.showMessage(this.t("error") + ": " + res.error, this.t("error"));
                 }
             } catch (e) {
                 console.error("Error parsing JSON response", e);
-                this.showMessage("Failed to execute query.", "Error");
+                this.showMessage("Failed to execute query.", this.t("error"));
             }
         });
     }
@@ -429,12 +439,12 @@ class CompareDB {
             <div class='modal-content modal-content-medium modal-content-confirm'>
                 <div class='modal-header'>
                     <button class='modal-close-btn close-modal'>&times;</button>
-                    <h3>Confirmation</h3>
+                    <h3>${this.t("confirmation")}</h3>
                 </div>
                 <div class='modal-body'>${message}</div>
                 <div class='modal-footer'>
-                    <button class='btn btn-success confirm-yes btn-confirm-yes'>Yes</button>
-                    <button class='btn btn-secondary confirm-no btn-confirm-no'>No</button>
+                    <button class='btn btn-success confirm-yes btn-confirm-yes'>${this.t("label_yes")}</button>
+                    <button class='btn btn-secondary confirm-no btn-confirm-no'>${this.t("label_no")}</button>
                 </div>
             </div>`;
 
@@ -454,7 +464,7 @@ class CompareDB {
     }
 
     // Show a simple message dialog
-    showMessage(message, title = "Information") {
+    showMessage(message, title = this.t("information")) {
         this.dynamicModal.innerHTML = `
             <div class='modal-content modal-content-medium modal-content-message'>
                 <div class='modal-header'>
@@ -463,7 +473,7 @@ class CompareDB {
                 </div>
                 <div class='modal-body'>${message}</div>
                 <div class='modal-footer'>
-                    <button class='btn btn-secondary close-modal'>OK</button>
+                    <button class='btn btn-secondary close-modal'>${this.t("ok")}</button>
                 </div>
             </div>`;
         this.dynamicModal.style.display = "block";
@@ -492,12 +502,12 @@ class CompareDB {
             try {
                 const res = JSON.parse(response);
                 if (res.error) {
-                    this.showMessage(res.error, "Error");
+                    this.showMessage(res.error, this.t("error"));
                     return;
                 }
                 const sql = res.sql.db1 || res.sql.db2;
                 if (!sql) {
-                    this.showMessage(`Could not retrieve CREATE TABLE statement for '${tableName}'. It might not exist in this database.`, "Not Found");
+                    this.showMessage(this.t("could_not_retrieve_create_table", tableName), this.t("not_found"));
                     return;
                 }
 
@@ -505,14 +515,14 @@ class CompareDB {
                     <div class='modal-content modal-content-medium'>
                         <div class="modal-header">
                             <button class="modal-close-btn close-modal">&times;</button>
-                            <h3>Create Table ${tableName}</h3>
+                            <h3>${this.t("create_table", tableName)}</h3>
                         </div>
                         <div class="modal-body">
                             <textarea class="modal-textarea" spellcheck="false" readonly>${sql}</textarea>
                         </div>
                         <div class='modal-footer'>
-                            <button class="btn btn-primary copy-create-sql">Copy</button>
-                            <button class="btn btn btn-secondary close-modal">Close</button>
+                            <button class="btn btn-primary copy-create-sql">${this.t("copy")}</button>
+                            <button class="btn btn btn-secondary close-modal">${this.t("close")}</button>
                         </div>
                     </div>`;
                 this.dynamicModal.style.display = "block";
@@ -525,7 +535,7 @@ class CompareDB {
                     const textarea = e.target.closest(".modal-content").querySelector("textarea");
                     navigator.clipboard.writeText(textarea.value);
                     this.dynamicModal.style.display = 'none';
-                    this.showMessage("SQL copied to clipboard.", "Success");
+                    this.showMessage(this.t("sql_copied"), this.t("success"));
                 });
                 this.dynamicModal.addEventListener("click", (e) => {
                     if (e.target === this.dynamicModal) {
@@ -541,5 +551,5 @@ class CompareDB {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    new CompareDB();
+    new CompareDB(typeof appTranslations !== 'undefined' ? appTranslations : {});
 });

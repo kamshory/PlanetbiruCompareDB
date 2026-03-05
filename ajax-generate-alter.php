@@ -29,6 +29,9 @@ function buildColumnDefinition($col)
 if (isset($_POST['db1']) && isset($_POST['db2']) && isset($_POST['tb'])) {
     header("Content-Type: application/json");
 
+    $langCode = get_lang_code();
+    $lang = new Language($langCode);
+
     $driver1 = get_post('driver1', 'mysql');
     $host1 = get_post('host1', 'localhost');
     $port1 = get_post('port1', 3306);
@@ -49,7 +52,7 @@ if (isset($_POST['db1']) && isset($_POST['db2']) && isset($_POST['tb'])) {
         $db_conn1 = get_db_connection($driver1, $host1, $port1, $db1, $user1, $pass1);
         $db_conn2 = get_db_connection($driver2, $host2, $port2, $db2, $user2, $pass2);
     } catch (PDOException $e) {
-        echo json_encode(array('error' => "Koneksi database gagal: " . $e->getMessage()));
+        echo json_encode(array('error' => $lang->get('connection_failed', $e->getMessage())));
         exit;
     }
 
@@ -129,8 +132,8 @@ if (isset($_POST['db1']) && isset($_POST['db2']) && isset($_POST['tb'])) {
         }
     } else {
         // Keduanya tidak ada
-        $sql_to_sync_db1[] = "-- Table $table not found in both databases.";
-        $sql_to_sync_db2[] = "-- Table $table not found in both databases.";
+        $sql_to_sync_db1[] = "-- " . $lang->get('table_not_found_in_both', $table);
+        $sql_to_sync_db2[] = "-- " . $lang->get('table_not_found_in_both', $table);
     }
 
     echo json_encode(array(

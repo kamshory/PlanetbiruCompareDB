@@ -23,9 +23,12 @@ function check_table_exists($pdo, $dbname, $tablename)
 // Eksekusi jika ada data POST
 if (isset($_POST['db']) || isset($_POST['tb'])) {
 
+    $langCode = get_lang_code();
+    $lang = new Language($langCode);
+
     $table = get_post('tb');
     if (empty($table)) {
-        echo json_encode(array('error' => 'Nama tabel kosong'));
+        echo json_encode(array('error' => $lang->get('table_name_empty')));
         exit;
     }
 
@@ -71,8 +74,8 @@ if (isset($_POST['db']) || isset($_POST['tb'])) {
             'sql'    => $result
         ));
     } catch (PDOException $e) {
-        echo json_encode(array('error' => "Koneksi/Query Gagal: " . $e->getMessage()));
+        echo json_encode(array('error' => $lang->get('connection_query_failed', $e->getMessage())));
     }
 } else {
-    echo json_encode(array('error' => 'No data posted'));
+    echo json_encode(array('error' => 'No data posted')); // Ini jarang terjadi, biarkan default
 }

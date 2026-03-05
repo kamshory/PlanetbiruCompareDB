@@ -36,3 +36,38 @@ function get_db_connection($driver, $host, $port, $dbname, $user, $pass)
     $pdo->exec("SET time_zone='" . date('P') . "'");
     return $pdo;
 }
+
+function get_lang_code()
+{
+    return isset($_COOKIE['lang']) && in_array($_COOKIE['lang'], ['en', 'id']) ? $_COOKIE['lang'] : 'en';
+}
+
+class Language
+{
+    private $data = [];
+    public function __construct($lang = 'en')
+    {
+        $file = __DIR__ . "/languages/$lang.ini";
+        if (file_exists($file)) {
+            $this->data = parse_ini_file($file);
+        } else {
+            $file = __DIR__ . "/languages/en.ini";
+            if (file_exists($file)) {
+                $this->data = parse_ini_file($file);
+            }
+        }
+    }
+    public function get($key, $args = [])
+    {
+        $text = isset($this->data[$key]) ? $this->data[$key] : $key;
+        if (!empty($args)) {
+            if (!is_array($args)) $args = [$args];
+            return vsprintf($text, $args);
+        }
+        return $text;
+    }
+    public function getAll()
+    {
+        return $this->data;
+    }
+}

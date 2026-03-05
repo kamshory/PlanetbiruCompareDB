@@ -4,6 +4,9 @@ require_once "lib.php";
 if (isset($_POST['target_db']) && isset($_POST['sql'])) {
     header("Content-Type: application/json");
 
+    $langCode = get_lang_code();
+    $lang = new Language($langCode);
+
     $target = $_POST['target_db']; // 'db1' atau 'db2'
     $suffix = ($target === 'db1') ? '1' : '2';
 
@@ -18,7 +21,7 @@ if (isset($_POST['target_db']) && isset($_POST['sql'])) {
     $sql = isset($_POST['sql']) ? $_POST['sql'] : '';
 
     if (empty($sql) || strpos(trim($sql), '--') === 0) {
-        echo json_encode(array('success' => false, 'error' => 'No valid SQL to execute'));
+        echo json_encode(array('success' => false, 'error' => $lang->get('no_valid_sql')));
         exit;
     }
 
