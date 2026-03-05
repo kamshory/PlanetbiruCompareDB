@@ -6,7 +6,8 @@ require_once "lib.php";
  * Fungsi Pengecekan Eksistensi Tabel
  * Menggunakan query ke INFORMATION_SCHEMA agar tidak memicu error 1146
  */
-function check_table_exists($pdo, $dbname, $tablename) {
+function check_table_exists($pdo, $dbname, $tablename)
+{
     try {
         $sql = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES 
                 WHERE TABLE_SCHEMA = :db 
@@ -21,7 +22,7 @@ function check_table_exists($pdo, $dbname, $tablename) {
 
 // Eksekusi jika ada data POST
 if (isset($_POST['db']) || isset($_POST['tb'])) {
-    
+
     $table = get_post('tb');
     if (empty($table)) {
         echo json_encode(array('error' => 'Nama tabel kosong'));
@@ -30,12 +31,14 @@ if (isset($_POST['db']) || isset($_POST['tb'])) {
 
     try {
         // Koneksi DB 1
+        $driver1 = get_post('driver1', 'mysql');
         $db1_name = get_post('db1');
-        $db_conn1 = get_db_connection(get_post('host1','localhost'), get_post('port1',3306), $db1_name, get_post('user1','root'), get_post('pass1',''));
+        $db_conn1 = get_db_connection($driver1, get_post('host1', 'localhost'), get_post('port1', 3306), $db1_name, get_post('user1', 'root'), get_post('pass1', ''));
 
         // Koneksi DB 2
+        $driver2 = get_post('driver2', 'mysql');
         $db2_name = get_post('db2');
-        $db_conn2 = get_db_connection(get_post('host2','localhost'), get_post('port2',3306), $db2_name, get_post('user2','root'), get_post('pass2',''));
+        $db_conn2 = get_db_connection($driver2, get_post('host2', 'localhost'), get_post('port2', 3306), $db2_name, get_post('user2', 'root'), get_post('pass2', ''));
 
         $result = array();
 
@@ -67,7 +70,6 @@ if (isset($_POST['db']) || isset($_POST['tb'])) {
             ),
             'sql'    => $result
         ));
-
     } catch (PDOException $e) {
         echo json_encode(array('error' => "Koneksi/Query Gagal: " . $e->getMessage()));
     }

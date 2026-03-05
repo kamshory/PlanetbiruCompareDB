@@ -1,20 +1,19 @@
 <?php
 error_reporting(0);
 require_once "lib.php";
-
-
 if (isset($_POST['target_db']) && isset($_POST['sql'])) {
     header("Content-Type: application/json");
 
     $target = $_POST['target_db']; // 'db1' atau 'db2'
     $suffix = ($target === 'db1') ? '1' : '2';
 
+    $driver = get_post('driver' . $suffix, 'mysql');
     $host = get_post('host' . $suffix, 'localhost');
     $port = get_post('port' . $suffix, 3306);
     $db   = get_post('db' . $suffix);
     $user = get_post('user' . $suffix, 'root');
     $pass = get_post('pass' . $suffix, '');
-    
+
     // Ambil SQL mentah (jangan gunakan get_post karena akan menghapus quote)
     $sql = isset($_POST['sql']) ? $_POST['sql'] : '';
 
@@ -24,10 +23,10 @@ if (isset($_POST['target_db']) && isset($_POST['sql'])) {
     }
 
     try {
-        $pdo = get_db_connection($host, $port, $db, $user, $pass);
+        $pdo = get_db_connection($driver, $host, $port, $db, $user, $pass);
         // Pisahkan statement berdasarkan titik koma untuk menangani multiple queries
         $statements = explode(";", $sql);
-        
+
         foreach ($statements as $stmt) {
             $stmt = trim($stmt);
             if (!empty($stmt)) {
@@ -44,4 +43,3 @@ if (isset($_POST['target_db']) && isset($_POST['sql'])) {
         echo json_encode(array('success' => false, 'error' => $e->getMessage()));
     }
 }
-?>

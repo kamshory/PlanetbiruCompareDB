@@ -2,35 +2,35 @@
 require_once "lib.php";
 
 if (isset($_POST['db1']) && isset($_POST['db2']) && isset($_POST['tb'])) {
+	// Konfigurasi Database 1
+	$driver1 = get_post('driver1', 'mysql');
+	$host1 = get_post('host1', 'localhost');
+	$port1 = get_post('port1', 3306);
+	$db1   = get_post('db1', '');
+	$user1 = get_post('user1', 'root');
+	$pass1 = get_post('pass1', '');
 
+	// Konfigurasi Database 2
+	$driver2 = get_post('driver2', 'mysql');
+	$host2 = get_post('host2', 'localhost');
+	$port2 = get_post('port2', 3306);
+	$db2   = get_post('db2', '');
+	$user2 = get_post('user2', 'root');
+	$pass2 = get_post('pass2', '');
 
-// Konfigurasi Database 1
-$host1 = get_post('host1', 'localhost');
-$port1 = get_post('port1', 3306);
-$db1   = get_post('db1', '');
-$user1 = get_post('user1', 'root');
-$pass1 = get_post('pass1', '');
-
-// Konfigurasi Database 2
-$host2 = get_post('host2', 'localhost');
-$port2 = get_post('port2', 3306);
-$db2   = get_post('db2', '');
-$user2 = get_post('user2', 'root');
-$pass2 = get_post('pass2', '');
-
-$table = get_post('tb', '');
+	$table = get_post('tb', '');
 	// test select db
 
-    $error = "";
+	$error = "";
 	try {
-		$database1 = get_db_connection($host1, $port1, $db1, $user1, $pass1);
+		$database1 = get_db_connection($driver1, $host1, $port1, $db1, $user1, $pass1);
 		$sdb1 = true;
 	} catch (PDOException $e) {
 		$error .= "Database 1: " . $e->getMessage() . "\n";
 	}
 
 	try {
-		$database2 = get_db_connection($host2, $port2, $db2, $user2, $pass2);
+		$database2 = get_db_connection($driver2, $host2, $port2, $db2, $user2, $pass2);
 		$sdb2 = true;
 	} catch (PDOException $e) {
 		$error .= "Database 2: " . $e->getMessage() . "\n";

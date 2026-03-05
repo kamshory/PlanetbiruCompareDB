@@ -19,7 +19,7 @@
         <div id="config-modal" class="dialog-modal" style="display:none">
           <div class="modal-content">
             <div class="modal-header">
-              <button type="button" class="modal-close-btn">&times;</button>
+              <button type="button" class="modal-close-btn close-modal">&times;</button>
               <h3>Database Configuration</h3>
             </div>
             <div class="modal-body">
@@ -106,7 +106,7 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" onclick="this.closest('.dialog-modal').style.display='none'" class="btn btn-default">OK</button>
+              <button type="button" class="btn close-modal btn-secondary">OK</button>
             </div>
           </div>
         </div>
