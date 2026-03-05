@@ -2,31 +2,49 @@
 
 During the development phase, changes in database structure are unavoidable. Developers may have several databases with different structures.
 
-To compare the structure of the database, developers will find it difficult if not use tools specifically designed for that. Developers must note one by one table names, field names, along with the default data type and data. This will take a very long time and be inefficient.
+To compare database structures, developers will find it difficult without using tools specifically designed for that purpose. Developers must note down table names, field names, along with data types and default data one by one. This will take a very long time and is inefficient.
 
-This tool is very useful for comparing two databases both on the same server and on different servers. The difference in database structure will be clearly seen.
+This tool is very useful for comparing two databases, whether on the same server or on different servers. Differences in database structure will be clearly visible.
 
-The program is made in PHP language. Developers must ensure that the web server has access to the database to be compared.
+The program is made in PHP language. Developers must ensure that the web server has access to the databases to be compared.
 
-To enter a server name, port number, username and password is very easy. Users simply enter it in the space provided. For convenience reasons, users can also swap entries.
+## Key Features
 
-## Features
-
-*   **Compare Database Structures**: Easily compare tables and fields between two databases.
+*   **Database Structure Comparison**: Easily compare tables and fields between two databases.
+*   **Responsive Interface**: User interface designed to work on desktop and mobile devices.
 *   **Highlight Differences**: Visual indicators for missing tables, missing fields, or different field definitions.
-*   **Generate Synchronization SQL**: Automatically generate `ALTER TABLE` or `CREATE TABLE` SQL statements to synchronize the databases.
+*   **Generate Synchronization SQL**: Automatically generate `ALTER TABLE` or `CREATE TABLE` SQL statements to synchronize databases.
     *   Handles `ADD COLUMN`, `DROP COLUMN`, and `MODIFY COLUMN`.
     *   Handles missing tables by generating full `CREATE TABLE` statements.
-*   **Execute SQL Directly**: Execute the generated synchronization queries directly from the interface.
-*   **Vanilla JavaScript**: Lightweight frontend without jQuery dependency.
-*   **User-Friendly Interface**: Uses modal dialogs for SQL preview, confirmation, and error messages.
+*   **Direct SQL Execution**: Execute generated synchronization queries directly from the interface after confirmation.
+*   **Show DDL**: Right-click on any table name to view its `CREATE TABLE` statement.
+*   **Easy Configuration**: Clean and responsive modal for entering database connection details, including a "Swap" button to quickly swap configurations.
+*   **Modern Tech Stack**: Built with pure Vanilla JavaScript (ES6 Class) on the frontend and PHP backend. Requires no jQuery or other heavy frameworks.
+
+## Requirements
+
+*   Web server (such as Apache, Nginx).
+*   PHP (7.x or later recommended).
+*   PHP Data Objects (PDO) extension enabled.
+*   Specific PDO driver for the database you want to connect to (e.g., `php_pdo_mysql`, `php_pdo_pgsql`).
+
+## Installation
+
+1.  Download or clone this repository.
+2.  Place the files in your web server directory (e.g., `htdocs` folder for XAMPP).
+3.  Access the `index.php` file via your browser (e.g., `http://localhost/PlanetbiruCompareDB/`).
 
 ## How to Use
 
-1.  Enter the connection details (Host, Port, Database Name, Username, Password) for both Database 1 and Database 2.
-2.  Click **List Tables**.
-3.  Tables with differences will be highlighted in red.
-4.  Click on a table name to view field details.
-5.  If differences are found, click **Generate Sync SQL**.
-6.  Review the generated SQL in the modal window.
-7.  Click **Execute** on the respective side to apply changes to the target database.
+1.  Open the application in your web browser.
+2.  Click the **Configuration** button to open the settings modal.
+3.  Enter connection details (Driver, Host, Port, Database Name, Username, Password) for **Database 1** and **Database 2**.
+4.  Click **OK** or close the modal.
+5.  Click **List Tables**. The application will connect to both databases and display all tables.
+6.  Tables with structural differences will be highlighted.
+7.  Click on a table name to load and compare field structures for that table side-by-side.
+8.  If differences are found in the field view, a **Generate Sync SQL** button will appear.
+9.  Click the button to open a modal displaying the SQL commands needed to synchronize the schema.
+10. Review the generated SQL. You can choose to make DB1 like DB2, or DB2 like DB1.
+11. Click the **Execute** button for the desired action. You will be asked for confirmation before any changes are made to your database.
+12. **Tip**: Right-click on any table name in the list to quickly view its `CREATE TABLE` statement.

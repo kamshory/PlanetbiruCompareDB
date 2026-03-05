@@ -1,0 +1,772 @@
+$color_1: #555555;
+$color_2: #444444;
+$color_3: #FF0000;
+$color_4: #777777;
+$color_5: green;
+$color_6: #1967d2;
+$color_7: #d93025;
+$color_8: #c5221f;
+$color_9: #333;
+$color_10: white;
+$color_11: #888888;
+$color_12: #aaa;
+$color_13: #555;
+$font-family_1: Tahoma, Geneva, sans-serif;
+$font-family_2: monospace;
+$background-color_1: #F9F9F9;
+$background-color_2: #FDFDFD;
+$background-color_3: #FFFFFF;
+$background-color_4: #FF9;
+$background-color_5: rgba(0, 0, 0, 0.5);
+$background-color_6: #f5f5f5;
+$background-color_7: #f9f9f9;
+$background-color_8: #e8f0fe;
+$background-color_9: #fff8f8;
+$background-color_10: #fce8e6;
+$background-color_11: #ffcccc;
+$background-color_12: #ffffcc;
+$background-color_13: #f0f0f0;
+$background-color_14: #28a745;
+$background-color_15: #218838;
+$background-color_16: #007bff;
+$background-color_17: #0069d9;
+$background-color_18: #e0e0e0;
+$background-color_19: rgba(0, 0, 0, 0.4);
+$background-color_20: #fefefe;
+$border-color_1: #1e7e34;
+$border-color_2: #0062cc;
+$border-color_3: #c0c0c0;
+
+body {
+	margin: 0;
+	padding: 0;
+	font-family: $font-family_1;
+	font-size: 13px;
+	color: $color_1;
+}
+form {
+	margin: 0;
+	padding: 0;
+}
+input {
+	margin: 0;
+}
+select {
+	margin: 0;
+	border: 1px solid #EEEEEE;
+	background-color: $background-color_3;
+	color: $color_1;
+	padding: 5px 8px;
+	width: 100px;
+	border-radius: 3px;
+	font-family: $font-family_1;
+	font-size: 13px;
+	color: $color_1;
+	transition: color 0.5s, box-shadow 0.5s, border-color 0.5s;
+}
+button {
+	margin: 0;
+}
+textarea {
+	margin: 0;
+	padding: 10px;
+	box-sizing: border-box;
+	resize: vertical;
+}
+.wrapper {
+	padding: 16px;
+}
+.input-bar {
+	padding: 16px;
+	margin-bottom: 16px;
+	border-bottom: 1px solid #EEEEEE;
+	background-color: $background-color_1;
+	a {
+		color: $color_2;
+		text-decoration: none;
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+	input[type="submit"] {
+		padding: 3px 12px;
+		border: 1px solid #DDDDDD;
+		background: #EEEEEE;
+		font-family: $font-family_1;
+		font-size: 13px;
+		color: $color_1;
+		height: 26px;
+		overflow: hidden;
+	}
+	input[type="button"] {
+		padding: 3px 12px;
+		border: 1px solid #DDDDDD;
+		background: #EEEEEE;
+		font-family: $font-family_1;
+		font-size: 13px;
+		color: $color_1;
+		height: 26px;
+		overflow: hidden;
+	}
+}
+.setting-form {
+	background-color: $background-color_2;
+	border: 1px solid #F5F5F5;
+	width: 620px;
+	position: absolute;
+	display: none;
+	box-sizing: border-box;
+	display: none;
+	position: fixed;
+	z-index: 1000;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background-color: $background-color_19;
+	table {
+		td {
+			padding: 2px 0px;
+			white-space: nowrap;
+			&:nth-child(2) {
+				width: 100px;
+				padding-left: 4px;
+			}
+			&:nth-child(3) {
+				width: 100px;
+				padding-left: 4px;
+			}
+			&:nth-child(4) {
+				width: 100px;
+				padding-left: 4px;
+			}
+			&:nth-child(5) {
+				width: 100px;
+				padding-left: 4px;
+			}
+			&:nth-child(6) {
+				width: 100px;
+				padding-left: 4px;
+			}
+		}
+	}
+	input[type="text"] {
+		border: 1px solid #EEEEEE;
+		background-color: $background-color_3;
+		color: $color_1;
+		padding: 5px 8px;
+		width: 100px;
+		border-radius: 3px;
+		font-family: $font-family_1;
+		font-size: 13px;
+		color: $color_1;
+		transition: color 0.5s, box-shadow 0.5s, border-color 0.5s;
+		&:focus {
+			border: 1px solid #A6D3E3;
+			box-shadow: 0px 0px 2px #D1E2E9;
+		}
+	}
+	input[type="password"] {
+		border: 1px solid #EEEEEE;
+		background-color: $background-color_3;
+		color: $color_1;
+		padding: 5px 8px;
+		width: 100px;
+		border-radius: 3px;
+		font-family: $font-family_1;
+		font-size: 13px;
+		color: $color_1;
+		transition: color 0.5s, box-shadow 0.5s, border-color 0.5s;
+		&:focus {
+			border: 1px solid #A6D3E3;
+			box-shadow: 0px 0px 2px #D1E2E9;
+		}
+	}
+	input[type="number"] {
+		border: 1px solid #EEEEEE;
+		background-color: $background-color_3;
+		color: $color_1;
+		padding: 5px 8px;
+		width: 100px;
+		border-radius: 3px;
+		font-family: $font-family_1;
+		font-size: 13px;
+		color: $color_1;
+		transition: color 0.5s, box-shadow 0.5s, border-color 0.5s;
+		width: 70px;
+	}
+}
+.db-area {
+	width: 50%;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	h3 {
+		margin: 0px 0px 5px 0px;
+		padding: 0px;
+	}
+}
+.db1-area {
+	float: left;
+	padding-right: 5px;
+}
+.db2-area {
+	float: right;
+	padding-left: 5px;
+}
+.text_db_name {
+	font-weight: normal;
+}
+.table1-container {
+	border: 1px solid #EEEEEE;
+	padding: 0;
+	height: 300px;
+	overflow: auto;
+	a {
+		color: $color_1;
+		text-decoration: none;
+	}
+}
+.table2-container {
+	border: 1px solid #EEEEEE;
+	padding: 0;
+	height: 300px;
+	overflow: auto;
+	a {
+		color: $color_1;
+		text-decoration: none;
+	}
+}
+.table-container {
+	.missing-table1 {
+		td {
+			&:nth-child(2) {
+				a.table-name {
+					color: $color_3;
+					font-weight: bold;
+				}
+			}
+		}
+	}
+	.missing-table2 {
+		td {
+			&:nth-child(2) {
+				a.table-name {
+					color: $color_3;
+					font-weight: bold;
+				}
+			}
+		}
+	}
+	.table {
+		tbody {
+			tr {
+				.asterisk {
+					color: $color_3;
+				}
+			}
+		}
+	}
+}
+.field-container {
+	margin-top: 10px;
+	padding-bottom: 20px;
+	overflow-x: auto;
+}
+.table {
+	border-collapse: collapse;
+	thead {
+		td {
+			padding: 4px 4px;
+			font-weight: bold;
+		}
+	}
+	tbody {
+		td {
+			padding: 3px 4px;
+		}
+		tr.dif-field {
+			td {
+				background-color: $background-color_4;
+			}
+		}
+	}
+}
+.clear {
+	clear: both;
+}
+.title {
+	display: inline-block;
+	padding: 0px 8px;
+}
+.table-name {
+	font-weight: normal;
+}
+.swap-icon {
+	width: 24px;
+	height: 24px;
+	display: inline-block;
+	text-align: center;
+	&::before {
+		content: "↑";
+	}
+	&::after {
+		content: "↓";
+	}
+}
+.swap-control {
+	display: inline-block;
+	font-size: 30px;
+	text-decoration: none;
+	color: $color_13;
+}
+.dialog-modal {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: $background-color_5;
+	z-index: 1000;
+	overflow-y: auto;
+	textarea {
+		font-size: 13px;
+	}
+}
+.modal-content {
+	background: #fff;
+	padding: 0;
+	border: 1px solid #ccc;
+	margin: 50px auto;
+	position: relative;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+	display: flex;
+	flex-direction: column;
+	max-width: 800px;
+	width: calc(100vw - 32px);
+	box-sizing: border-box;
+}
+.modal-content-large {
+	max-width: 90%;
+	width: 1200px;
+}
+.modal-content-medium {
+	max-width: 800px;
+}
+.modal-header {
+	padding: 12px 16px;
+	border-bottom: 1px solid #eee;
+	background-color: $background-color_6;
+	position: relative;
+	h3 {
+		margin: 0;
+		font-size: 16px;
+		color: $color_1;
+		font-weight: normal;
+	}
+}
+.modal-body {
+	padding: 20px;
+	overflow-y: auto;
+	flex: 1;
+}
+.modal-close-btn {
+	position: absolute;
+	top: 10px;
+	right: 15px;
+	cursor: pointer;
+	font-size: 1.5em;
+	border: none;
+	background: transparent;
+	line-height: 1;
+	color: $color_4;
+}
+.modal-close-btn-simple {
+	position: absolute;
+	top: 12px;
+	right: 15px;
+	cursor: pointer;
+}
+.modal-flex-container {
+	display: flex;
+	gap: 10px;
+	margin-top: 20px;
+}
+.modal-flex-item {
+	flex: 1;
+}
+.modal-textarea {
+	width: 100%;
+	height: 300px;
+	font-family: $font-family_2;
+}
+.message-identical {
+	padding: 10px;
+	color: $color_5;
+	font-weight: bold;
+}
+.table-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	li {
+		padding: 7px 12px;
+		border-bottom: 1px solid #f5f5f5;
+		cursor: pointer;
+		transition: background-color 0.1s;
+		&:hover {
+			background-color: $background-color_7;
+		}
+	}
+	li.active {
+		background-color: $background-color_8;
+		color: $color_6;
+		font-weight: bold;
+	}
+	li.diff {
+		color: $color_7;
+		background-color: $background-color_9;
+	}
+	li.diff.active {
+		background-color: $background-color_10;
+		color: $color_8;
+	}
+}
+.row-missing {
+	background-color: $background-color_11;
+}
+.row-diff {
+	background-color: $background-color_12;
+}
+.dialog-modal-body {
+	padding: 20px;
+}
+.dialog-modal-footer {
+	border-top: 1px solid #CCCCCC;
+	padding: 10px 16px;
+	text-align: right;
+	input[type="submit"] {
+		border: 1px solid #DDDDDD;
+		background: #EEEEEE;
+		font-family: $font-family_1;
+		font-size: 13px;
+		color: $color_1;
+		padding: 8px 12px;
+		overflow: hidden;
+		min-width: 80px;
+	}
+	input[type="button"] {
+		border: 1px solid #DDDDDD;
+		background: #EEEEEE;
+		font-family: $font-family_1;
+		font-size: 13px;
+		color: $color_1;
+		padding: 8px 12px;
+		overflow: hidden;
+		min-width: 80px;
+	}
+	input[type="reset"] {
+		border: 1px solid #DDDDDD;
+		background: #EEEEEE;
+		font-family: $font-family_1;
+		font-size: 13px;
+		color: $color_1;
+		padding: 8px 12px;
+		overflow: hidden;
+		min-width: 80px;
+	}
+	button {
+		border: 1px solid #DDDDDD;
+		background: #EEEEEE;
+		font-family: $font-family_1;
+		font-size: 13px;
+		color: $color_1;
+		padding: 8px 12px;
+		overflow: hidden;
+		min-width: 80px;
+	}
+}
+.dialog-modal-header {
+	h3 {
+		border-bottom: 1px solid #CCCCCC;
+		background: #EEE;
+		margin: 0;
+		padding: 10px 16px;
+	}
+}
+.missing-table1 {
+	.link-create {
+		display: inline;
+	}
+}
+.missing-table2 {
+	.link-create {
+		display: inline;
+	}
+}
+.textarea.textarea {
+	width: 100%;
+	box-sizing: border-box;
+	height: 200px;
+	resize: vertical;
+	padding: 10px;
+	&:focus-visible {
+		outline: none;
+	}
+	&:focus {
+		outline: none;
+	}
+}
+#action-container {
+	padding: 10px;
+	clear: both;
+	text-align: center;
+	button {
+		padding: 8px 16px;
+		font-size: 13px;
+		cursor: pointer;
+	}
+}
+.btn {
+	padding: 8px 16px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 13px;
+	cursor: pointer;
+	border-radius: 3px;
+	background-color: $background-color_13;
+	border: 1px solid #d1d1d1;
+	color: $color_9;
+	transition: all 0.2s ease-in-out;
+	&:hover {
+		&:not(:disabled) {
+			filter: brightness(0.9);
+		}
+	}
+	&:disabled {
+		background-color: $background-color_18;
+		border-color: $border-color_3;
+		color: $color_11;
+		cursor: not-allowed;
+	}
+}
+.btn-success {
+	background-color: $background-color_14;
+	border: 1px solid #28a745;
+	color: $color_10;
+	&:hover {
+		&:not(:disabled) {
+			background-color: $background-color_15;
+			border-color: $border-color_1;
+		}
+	}
+}
+.btn-primary {
+	background-color: $background-color_16;
+	border: 1px solid #007bff;
+	color: $color_10;
+	&:hover {
+		&:not(:disabled) {
+			background-color: $background-color_17;
+			border-color: $border-color_2;
+		}
+	}
+}
+.btn-warning {
+	background-color: $background-color_18; // misal kuning terang
+	border: 1px solid $border-color_4; // kuning gelap
+	color: $color_9; // teks gelap agar kontras
+	&:hover {
+		&:not(:disabled) {
+			background-color: $background-color_19; // hover lebih gelap
+			border-color: $border-color_5;
+		}
+	}
+}
+
+.btn-danger {
+	background-color: $background-color_20; // merah
+	border: 1px solid $border-color_6;
+	color: $color_10; // putih
+	&:hover {
+		&:not(:disabled) {
+			background-color: $background-color_21;
+			border-color: $border-color_7;
+		}
+	}
+}
+
+.btn-secondary {
+	background-color: $background-color_22; // abu-abu sedang
+	border: 1px solid $border-color_8;
+	color: $color_9; // teks gelap
+	&:hover {
+		&:not(:disabled) {
+			background-color: $background-color_23;
+			border-color: $border-color_9;
+		}
+	}
+}
+
+.btn-info {
+	background-color: $background-color_24; // biru muda / info
+	border: 1px solid $border-color_10;
+	color: $color_10; // putih
+	&:hover {
+		&:not(:disabled) {
+			background-color: $background-color_25;
+			border-color: $border-color_11;
+		}
+	}
+}
+.modal-action-bar {
+	text-align: right;
+	margin-top: 5px;
+}
+.dialog-modal-top {
+	z-index: 2000;
+}
+.modal-content-confirm {
+	max-width: 400px;
+	margin-top: 100px;
+}
+.modal-body-padding {
+	padding: 20px;
+}
+.modal-footer {
+	text-align: right;
+	padding: 12px 16px;
+	border-top: 1px solid #eee;
+	background-color: $background-color_6;
+}
+.btn-confirm-yes {
+	padding: 6px 12px;
+	cursor: pointer;
+	margin-right: 10px;
+}
+.btn-confirm-no {
+	padding: 6px 12px;
+	cursor: pointer;
+}
+.modal-content-message {
+	max-width: 500px;
+}
+
+.config-table {
+	>tbody {
+		>tr {
+			>td {
+				&:nth-child(1) {
+					width: 40%;
+				}
+				&:nth-child(2) {
+					input[type="text"] {
+						width: 100%;
+						box-sizing: border-box;
+						border: 1px solid #EEEEEE;
+						background-color: $background-color_3;
+						color: $color_1;
+						padding: 6px 8px;
+						border-radius: 3px;
+						font-family: $font-family_1;
+						font-size: 13px;
+					}
+					input[type="password"] {
+						width: 100%;
+						box-sizing: border-box;
+						border: 1px solid #EEEEEE;
+						background-color: $background-color_3;
+						color: $color_1;
+						padding: 6px 8px;
+						border-radius: 3px;
+						font-family: $font-family_1;
+						font-size: 13px;
+					}
+					input[type="number"] {
+						width: 100%;
+						box-sizing: border-box;
+						border: 1px solid #EEEEEE;
+						background-color: $background-color_3;
+						color: $color_1;
+						padding: 6px 8px;
+						border-radius: 3px;
+						font-family: $font-family_1;
+						font-size: 13px;
+					}
+					select {
+						width: 100%;
+						box-sizing: border-box;
+						border: 1px solid #EEEEEE;
+						background-color: $background-color_3;
+						color: $color_1;
+						padding: 6px 8px;
+						border-radius: 3px;
+						font-family: $font-family_1;
+						font-size: 13px;
+					}
+				}
+			}
+		}
+	}
+	input {
+		width: 100%;
+		box-sizing: border-box;
+	}
+	select {
+		width: 100%;
+		box-sizing: border-box;
+	}
+}
+.setting-form-content {
+	background-color: $background-color_20;
+	margin: 5% auto;
+	padding: 16px;
+	border: 1px solid #888;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+	max-width: 800px;
+	width: calc(100vw - 32px);
+	box-sizing: border-box;
+}
+.close-setting {
+	color: $color_12;
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+	cursor: pointer;
+}
+.config-wrapper {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+}
+.config-col {
+	width: 45%;
+}
+.swap-col {
+	width: 10%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 120px;
+}
+@media screen and (max-width: 820px) {
+	.config-wrapper {
+		flex-direction: column;
+		align-items: center;
+	}
+	.config-col {
+		width: 100%;
+		margin-bottom: 15px;
+	}
+	.swap-col {
+		padding: 15px 0;
+		width: 100%;
+		.swap-control {
+			transform: rotate(90deg);
+			display: inline-block;
+		}
+	}
+}

@@ -3,6 +3,7 @@ require_once "lib.php";
 
 if (isset($_POST['db1']) && isset($_POST['db2'])) {
     // Konfigurasi Database 1
+    $driver1 = get_post('driver1', 'mysql');
     $host1 = get_post('host1', 'localhost');
     $port1 = get_post('port1', 3306);
     $db1   = get_post('db1', '');
@@ -10,6 +11,7 @@ if (isset($_POST['db1']) && isset($_POST['db2'])) {
     $pass1 = get_post('pass1', '');
 
     // Konfigurasi Database 2
+    $driver2 = get_post('driver2', 'mysql');
     $host2 = get_post('host2', 'localhost');
     $port2 = get_post('port2', 3306);
     $db2   = get_post('db2', '');
@@ -21,7 +23,7 @@ if (isset($_POST['db1']) && isset($_POST['db2'])) {
 
     // Koneksi ke database pertama
     try {
-        $database1 = get_db_connection($host1, $port1, $db1, $user1, $pass1);
+        $database1 = get_db_connection($driver1, $host1, $port1, $db1, $user1, $pass1);
         $sdb1 = true;
     } catch (PDOException $e) {
         $error .= "Database 1: " . $e->getMessage() . "\n";
@@ -30,7 +32,7 @@ if (isset($_POST['db1']) && isset($_POST['db2'])) {
 
     // Koneksi ke database kedua
     try {
-        $database2 = get_db_connection($host2, $port2, $db2, $user2, $pass2);
+        $database2 = get_db_connection($driver2, $host2, $port2, $db2, $user2, $pass2);
         $sdb2 = true;
     } catch (PDOException $e) {
         $error .= "Database 2: " . $e->getMessage() . "\n";
@@ -44,7 +46,8 @@ if (isset($_POST['db1']) && isset($_POST['db2'])) {
     }
 
     // Fungsi untuk mendapatkan daftar tabel dari database
-    function getTables($db) {
+    function getTables($db)
+    {
         $tables = array();
         try {
             $stmt = $db->query("SHOW TABLE STATUS");
@@ -61,7 +64,8 @@ if (isset($_POST['db1']) && isset($_POST['db2'])) {
     $arr2 = getTables($database2);
 
     // Fungsi untuk mendapatkan struktur tabel
-    function getTableFields($db, $tables) {
+    function getTableFields($db, $tables)
+    {
         $fields = array();
         foreach ($tables as $table) {
             $tableName = $table['Name'];
@@ -106,4 +110,3 @@ if (isset($_POST['db1']) && isset($_POST['db2'])) {
 
     echo json_encode($output);
 }
-?>
