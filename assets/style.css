@@ -2,7 +2,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: Tahoma, Geneva, sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     color: #555555;
 }
 
@@ -21,12 +21,12 @@ textarea {
 .all {}
 
 .wrapper {
-    padding: 10px 10px 10px 10px;
+    padding: 16px;
 }
 
 .input-bar {
-    padding: 10px;
-    margin-bottom: 10px;
+    padding: 16px;
+    margin-bottom: 16px;
     border-bottom: 1px solid #EEEEEE;
     background-color: #F9F9F9;
 }
@@ -43,10 +43,10 @@ textarea {
 .setting-form {
     background-color: #FDFDFD;
     border: 1px solid #F5F5F5;
-    padding: 10px;
     width: 620px;
     position: absolute;
     display: none;
+    box-sizing: border-box;
 }
 
 .setting-form table td {
@@ -65,15 +65,16 @@ textarea {
 
 .setting-form input[type="text"],
 .setting-form input[type="password"],
-.setting-form input[type="number"] {
+.setting-form input[type="number"],
+select {
     border: 1px solid #EEEEEE;
     background-color: #FFFFFF;
     color: #555555;
-    padding: 4px;
+    padding: 5px 8px;
     width: 100px;
-    border-radius: 2px;
+    border-radius: 3px;
     font-family: Tahoma, Geneva, sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     color: #555555;
     transition: color 0.5s, box-shadow 0.5s, border-color 0.5s;
 }
@@ -94,7 +95,7 @@ textarea {
     border: 1px solid #DDDDDD;
     background: #EEEEEE;
     font-family: Tahoma, Geneva, sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     color: #555555;
     height: 26px;
     overflow: hidden;
@@ -129,17 +130,17 @@ textarea {
 
 .table1-container {
     border: 1px solid #EEEEEE;
-    padding: 10px;
+    padding: 0;
 }
 
 .table2-container {
     border: 1px solid #EEEEEE;
-    padding: 10px;
+    padding: 0;
 }
 
 .table1-container,
 .table2-container {
-    height: 200px;
+    height: 300px;
     overflow: auto;
 }
 
@@ -221,7 +222,7 @@ textarea {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0, 0, 0, 0.5);
     z-index: 1000;
     overflow-y: auto;
 }
@@ -232,11 +233,14 @@ textarea {
     border: 1px solid #ccc;
     margin: 50px auto;
     position: relative;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
-    max-height: 90vh;
+    max-width: 800px;
+    width: calc(100vw - 32px);
+    box-sizing: border-box;
 }
+
 
 .modal-content-large {
     max-width: 90%;
@@ -257,7 +261,8 @@ textarea {
 .modal-header h3 {
     margin: 0;
     font-size: 16px;
-    color: #333;
+    color: #555555;
+    font-weight: normal;
 }
 
 .modal-body {
@@ -275,6 +280,7 @@ textarea {
     border: none;
     background: transparent;
     line-height: 1;
+    color: #777777;
 }
 
 .modal-close-btn-simple {
@@ -306,12 +312,37 @@ textarea {
     font-weight: bold;
 }
 
+.table-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
 .table-list li {
+    padding: 7px 12px;
+    border-bottom: 1px solid #f5f5f5;
     cursor: pointer;
+    transition: background-color 0.1s;
+}
+
+.table-list li:hover {
+    background-color: #f9f9f9;
+}
+
+.table-list li.active {
+    background-color: #e8f0fe;
+    color: #1967d2;
+    font-weight: bold;
 }
 
 .table-list li.diff {
-    color: red;
+    color: #d93025;
+    background-color: #fff8f8;
+}
+
+.table-list li.diff.active {
+    background-color: #fce8e6;
+    color: #c5221f;
 }
 
 .row-missing {
@@ -346,7 +377,7 @@ textarea {
     border: 1px solid #DDDDDD;
     background: #EEEEEE;
     font-family: Tahoma, Geneva, sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     color: #555555;
     padding: 8px 12px;
     overflow: hidden;
@@ -367,78 +398,225 @@ textarea {
     resize: vertical;
     padding: 10px;
 }
-textarea{
+
+textarea {
     padding: 10px;
     box-sizing: border-box;
+    resize: vertical;
 }
 
 .textarea.textarea:focus-visible,
 .textarea.textarea:focus {
     outline: none;
 }
+
 .dialog-modal textarea {
-    font-size: 12px;
+    font-size: 13px;
 }
+
 #action-container {
     padding: 10px;
     clear: both;
     text-align: center;
 }
+
 #action-container button {
     padding: 8px 16px;
-    font-size: 12px;
+    font-size: 13px;
     cursor: pointer;
 }
-.execute-btn {
-    background-color: #4CAF50;
-    border: 1px solid #4CAF50;
-    color: white;
+
+.btn {
     padding: 8px 16px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 12px;
+    font-size: 13px;
     cursor: pointer;
-    border-radius: 2px;
+    border-radius: 3px;
+    background-color: #f0f0f0; /* lebih terang dari #cccccc */
+    border: 1px solid #d1d1d1; /* lebih halus dari #bdbdbd */
+    color: #333; /* teks lebih kontras */
+    transition: all 0.2s ease-in-out; /* efek hover */
 }
-.execute-btn:disabled {
-    background-color: #cccccc;
-    border-color: #cccccc;
+
+.btn:hover:not(:disabled) {
+    filter: brightness(0.9); /* efek hover sederhana */
+}
+
+.btn-success {
+    background-color: #28a745; /* hijau Bootstrap modern */
+    border: 1px solid #28a745;
+    color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+    background-color: #218838; /* hover sedikit lebih gelap */
+    border-color: #1e7e34;
+}
+
+.btn-primary {
+    background-color: #007bff; /* biru Bootstrap */
+    border: 1px solid #007bff;
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+
+.btn:disabled {
+    background-color: #e0e0e0;
+    border-color: #c0c0c0;
+    color: #888888;
     cursor: not-allowed;
 }
+
 .modal-action-bar {
     text-align: right;
     margin-top: 5px;
 }
+
 .dialog-modal-top {
     z-index: 2000;
 }
+
 .modal-content-confirm {
     max-width: 400px;
     margin-top: 100px;
 }
+
 .modal-body-padding {
     padding: 20px;
 }
+
 .modal-footer {
     text-align: right;
     padding: 12px 16px;
     border-top: 1px solid #eee;
     background-color: #f5f5f5;
 }
+
 .btn-confirm-yes {
     padding: 6px 12px;
     cursor: pointer;
     margin-right: 10px;
 }
+
 .btn-confirm-no {
     padding: 6px 12px;
     cursor: pointer;
 }
+
 .modal-content-message {
     max-width: 500px;
 }
+
 .btn-default {
     padding: 6px 12px;
     cursor: pointer;
+}
+
+.config-table>tbody>tr>td:nth-child(1) {
+    width: 40%;
+}
+
+.config-table>tbody>tr>td:nth-child(2) input[type="text"],
+.config-table>tbody>tr>td:nth-child(2) input[type="password"],
+.config-table>tbody>tr>td:nth-child(2) input[type="number"],
+.config-table>tbody>tr>td:nth-child(2) select {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #EEEEEE;
+    background-color: #FFFFFF;
+    color: #555555;
+    padding: 6px 8px;
+    border-radius: 3px;
+    font-family: Tahoma, Geneva, sans-serif;
+    font-size: 13px;
+}
+
+.setting-form {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.setting-form-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 16px;
+    border: 1px solid #888;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    max-width: 800px;
+    width: calc(100vw - 32px);
+    box-sizing: border-box;
+}
+
+.close-setting {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.config-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.config-col {
+    width: 45%;
+}
+
+.swap-col {
+    width: 10%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 120px;
+}
+
+.swap-control {
+    font-size: 30px;
+    text-decoration: none;
+    color: #555;
+}
+
+.config-table input,
+.config-table select {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+@media screen and (max-width: 820px) {
+    .config-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .config-col {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .swap-col {
+        padding: 15px 0;
+        width: 100%;
+    }
+
+    .swap-col .swap-control {
+        transform: rotate(90deg);
+        display: inline-block;
+    }
 }
